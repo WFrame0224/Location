@@ -1,0 +1,21 @@
+﻿# 需要忽略的文件夹
+/Debug/
+/.vscode/
+
+# 需要忽略的文件
+*.lst
+*.OBJ
+*.plg
+*.uvopt
+*.plg
+*.uvproj
+*.A51
+*.LST
+*.M51
+*.MAP
+*.bak
+*.frame
+
+# 需要包含的目录
+!*.c
+!*.h
