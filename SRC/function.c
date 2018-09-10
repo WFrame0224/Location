@@ -77,7 +77,6 @@ void Delay_Xms(unsigned int Xms) //@24.000MHz
 /**
  * 定义了10us的延时
  */
-/*
 void Delay_10us()		//@24.000MHz
 {
 	unsigned char i;
@@ -85,11 +84,9 @@ void Delay_10us()		//@24.000MHz
 	i = 78;
 	while (--i);
 }
-*/
 /**
  * 定义了大于10us，小于1000us的延时
  */ 
-/*
 void Delay_Xus(unsigned int Xus)
 {
 	unsigned char i;
@@ -98,4 +95,3 @@ void Delay_Xus(unsigned int Xus)
 		Delay_10us();
 	}
 }
-*/

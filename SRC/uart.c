@@ -7,10 +7,10 @@
  *      串口3: 预留出陀螺仪等导航器件
  */ 
 #include "uart.h"
+#include "Anchor.h"
 
 bit idata busy1, busy2, busy3, busy4; //串口发送标志
-uchar idata _16_2_str[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-uint8_t recv_commd[6] = {0x00};
+const uchar idata _16_2_str[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 /************************************************/
 
@@ -115,7 +115,7 @@ void Init_UART1()
     TL1 = (65536 - (FOSC / 4 / BAUD1));
     TH1 = (65536 - (FOSC / 4 / BAUD1)) >> 8;
     AUXR |= 0X40; //
-    AUXR = 0x40;  //定时器1为1T模式
+//    AUXR = 0x40;  //定时器1为1T模式
     TMOD = 0x00;  //定时器1为模式0(16位自动重载)
     TR1 = 1;
     ES = 1; //使能串口1中断
@@ -156,7 +156,7 @@ void Init_UART4()
 /**************UART_Interrupt_Fuctions****************************/
 void UART1_Isr() interrupt 4 using 1
 {
-    uint8_t dat = 0;
+    uint8_t idata dat = 0;
 	if (TI)
     {
         TI = 0;    //清中断标志
@@ -165,13 +165,16 @@ void UART1_Isr() interrupt 4 using 1
     if (RI)
     {
         RI = 0;
-		
+		dat = SBUF;
+		S2BUF = dat;
     }
 }
 
 void UART2_Isr() interrupt 8
 {
-    if (S2CON & 0x02)
+    uint8_t idata dat = 0;
+	
+	if (S2CON & 0x02)
     {
         S2CON &= ~0x02; //清中断标志
         busy2 = 0;      //清忙标志
@@ -179,12 +182,14 @@ void UART2_Isr() interrupt 8
     if (S2CON & 0x01)
     {
         S2CON &= ~0x01; //清中断标志
+		
+		dat = S2BUF;
+		SBUF = dat;
     }
 }
 
 void Uart3Isr() interrupt 17
 {
-    uchar buffer = 0;
     if (S3CON & 0x02)
     {
         S3CON &= ~0x02;
@@ -193,15 +198,12 @@ void Uart3Isr() interrupt 17
     if (S3CON & 0x01)
     {
         S3CON &= ~0x01;
-
-        buffer = S3BUF;
-        S3BUF = buffer;
     }
 }
 
 void UART4_Isr() interrupt 18
 {
-    uchar buffer = 0;
+    uchar idata dat = 0;
     if (S4CON & 0x02)
     {
         S4CON &= ~0x02; //清中断标志
@@ -211,7 +213,7 @@ void UART4_Isr() interrupt 18
     {
         S4CON &= ~0x01; //清中断标志
 
-        buffer = S4BUF;
-        S4BUF = buffer;
+        dat = S4BUF; 
+		getAngle(dat);
     }
 }

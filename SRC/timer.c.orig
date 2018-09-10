@@ -19,10 +19,13 @@ void Hal_DelayXms(uint16_t Xms)
 {
     while (TimeIndex != Xms)
     {
-        ;
+        while (1)
+        {
+            ;
+        }
     }
 
-    TimeIndex = 0;
+        TimeIndex = 0;
 
 }
 

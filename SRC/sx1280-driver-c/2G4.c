@@ -15,6 +15,10 @@
 #include "hal.h"
 #include "uart.h"
 
+/* defines---------------------------------------------*/
+
+#define Anchor
+
 /* Variables-------------------------------------------*/
 extern uint TimeIndex;
 
@@ -73,7 +77,7 @@ void Init_2G4()
     // 采用Lora模式----------------------------------------------
     // 初始化LORA相关参数
     modulationParams.PacketType = PACKET_TYPE_LORA;
-    modulationParams.Params.LoRa.SpreadingFactor = LORA_SF12;
+    modulationParams.Params.LoRa.SpreadingFactor = LORA_SF9;
     modulationParams.Params.LoRa.Bandwidth = LORA_BW_1600;
     modulationParams.Params.LoRa.CodingRate = LORA_CR_LI_4_7;
 
@@ -98,6 +102,14 @@ void Init_2G4()
     SX1280SetModulationParams(&modulationParams);
     // 6--设置数据包类型
     SX1280SetPacketParams(&packetParams);
+	
+#if defined(Anchor)
+
+    //---发送模式配置----
+    // t1--配置发送参数
+    SX1280SetTxParams(TX_OUTPUT_POWER, RADIO_RAMP_02_US);
+
+#endif
 }
 void Tx_Msg_2G4(uint8_t *msg, uint8_t msg_size)
 {
@@ -117,7 +129,7 @@ int8_t Rx_Msg_2G4(uint8_t* Buffer, uint8_t* BufferSize, uint8_t maxmsize )
 {
     uint16_t irqstatus = 0;
     // 芯片的状态标志
-    RadioStatus_t radioStatus;
+//    RadioStatus_t radioStatus;
 	
 	// 设置接收的阀值时间
 	TickTime_t Rx_ticktime = {RX_TIMEOUT_TICK_SIZE, RX_TIMEOUT_VALUE};

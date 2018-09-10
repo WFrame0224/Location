@@ -13,7 +13,7 @@
 //定义串口波特率
 #define BAUD1 115200
 #define BAUD2 115200
-#define BAUD3 9600//115200
+#define BAUD3 19200
 #define BAUD4 115200
 
 //定义定时器周期频率
