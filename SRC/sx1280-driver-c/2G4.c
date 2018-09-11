@@ -77,14 +77,14 @@ void Init_2G4()
     // 采用Lora模式----------------------------------------------
     // 初始化LORA相关参数
     modulationParams.PacketType = PACKET_TYPE_LORA;
-    modulationParams.Params.LoRa.SpreadingFactor = LORA_SF9;
-    modulationParams.Params.LoRa.Bandwidth = LORA_BW_1600;
-    modulationParams.Params.LoRa.CodingRate = LORA_CR_LI_4_7;
+    modulationParams.Params.LoRa.SpreadingFactor = LORA_SF6;
+    modulationParams.Params.LoRa.Bandwidth = LORA_BW_0200;
+    modulationParams.Params.LoRa.CodingRate = LORA_CR_4_5;
 
     packetParams.PacketType = PACKET_TYPE_LORA;
     packetParams.Params.LoRa.PreambleLength = 0x12;
     packetParams.Params.LoRa.HeaderType = LORA_PACKET_VARIABLE_LENGTH;
-    packetParams.Params.LoRa.PayloadLength = 4;
+    packetParams.Params.LoRa.PayloadLength = 1;
     packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
 

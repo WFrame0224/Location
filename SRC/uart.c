@@ -214,6 +214,6 @@ void UART4_Isr() interrupt 18
         S4CON &= ~0x01; //清中断标志
 
         dat = S4BUF; 
-		getAngle(dat);
+		getMsgAngle(dat);
     }
 }

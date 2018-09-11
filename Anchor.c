@@ -9,6 +9,7 @@
 #include "string.h"
 #include "uart.h"
 #include "2G4.h"
+#include "timer.h"
 
 // 存放中心站由433M信道传来的启动帧和电机控制帧
 extern CommdInfo commdinfo = {{0x00}, 0, 0, false};
@@ -16,12 +17,15 @@ extern CommdInfo commdinfo = {{0x00}, 0, 0, false};
 // 存放需求角度以及角度旋转的方向
 extern DesAngle desangle = {'-', 0x0000};
 
+// 记录当前的实际角度,不同于DesAngle,自带符号位
+static int16_t CurrentAngle = 0x0000;
+
 // 存放锚节点的标号
-extern uint8_t AnchorNum;
+static uint8_t AnchorNumber = 0;
 
 /*========================Functions================================*/
 
-bool getAnchorNumber(char *AnchorNumber)
+bool ReadAnchorNumber()
 {
     uint16_t ADDR = 0x0000; // 锚节点信息存放的默认地址
     uint8_t Msg[2] = {0x00};
@@ -32,11 +36,15 @@ bool getAnchorNumber(char *AnchorNumber)
         return false;
     }
 
-    *AnchorNumber = Msg[1] - '0'; // 得到实际的标号
+    AnchorNumber = Msg[1] - '0'; // 得到实际的标号
     return true;
 }
+uint8_t GetAnchorNumber()
+{
+    return AnchorNumber;
+}
 
-void getAngle(uint8_t Msg)
+void getMsgAngle(uint8_t Msg)
 {
     uint8_t Head[3] = {0x00, 0x00, 0x00};
     uint8_t Tail[3] = {0x00, 0x00, 0x00};
@@ -74,53 +82,177 @@ void getAngle(uint8_t Msg)
     }
 }
 
-void Send_GetRssiCommd(DesAngle AngleDir)
+int16_t getCurrentAngle()
+{
+    return CurrentAngle;
+}
+
+void Send_GetRssiCommd(int16_t ActualAngle)
 {
     uint8_t i = 0;
-    // 读取控制帧                  帧头  标号 符号     角度     次数  帧尾
+    // 读取控制帧                  帧头   标号  符号     角度     次数  帧尾
     uint8_t getrssicommd[9] = {'a', 'b', 0, 0x00, 0x00, 0x00, 0, 'a', 'b'};
     // 存入当前标号
-    getrssicommd[2] = AnchorNum;
+    getrssicommd[2] = GetAnchorNumber();
     // 存入角度信息
-    getrssicommd[3] = AngleDir.F;
-    getrssicommd[4] = (AngleDir.ANGLE >> 8) & 0xff;
-    getrssicommd[5] = AngleDir.ANGLE & 0xff;
+    if (ActualAngle > 0)
+    {
+        getrssicommd[3] = '+';
+        ActualAngle = ActualAngle;
+    }
+    else
+    {
+        getrssicommd[3] = '-';
+        ActualAngle = -ActualAngle;
+    }
+    // 存放角度的绝对值
+    getrssicommd[4] = (ActualAngle >> 8) & 0xff;
+    getrssicommd[5] = ActualAngle & 0xff;
 
     for (i = 0; i < 10; i++) // 每个Anchor每次发送10个RSSI控制帧
     {
         getrssicommd[6] = i;
         Tx_Msg_2G4(getrssicommd, 9);
-        // 进行适当的延时算法
+        // 每次延时50ms
+        Hal_DelayXms(50);
     }
 }
 
-void continueRound(DesAngle desangle);
+void InitRound(DesAngle desangle)
 {
-    
+    /**
+	 * 电机旋转 8度/s	 
+	 */
+    // 先根据锚节点标号，对应到实际的角度值
+    switch (GetAnchorNumber())
+    {
+        case 0: // 锚节点0
+            CurrentAngle += 180;
+            break;
+
+        case 1: // 锚节点1
+            CurrentAngle += 270;
+            break;
+
+        case 2: // 锚节点2
+            CurrentAngle += 0;
+            break;
+
+        case 3: // 锚节点3
+            CurrentAngle += 90;
+            break;
+
+        default: // 如果不是锚节点
+            return;
+            break;
+    }
+    // 进行初始角度设置
+    if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
+    {
+        Round_left();
+        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.008));
+        Round_stop();
+
+        CurrentAngle += desangle.ANGLE;
+    }
+    else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小,最后不要采用顺时针
+    {
+        Round_right();
+        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.008));
+        Round_stop();
+        if (CurrentAngle == 0)
+        {
+            CurrentAngle = 360;
+        }
+        CurrentAngle -= desangle.ANGLE;
+    }
+    else
+    {
+        return;
+    }
 }
 
-void Send_GetRssiCommd(DesAngle AngleDir)
+void continueRound(DesAngle desangle)
 {
 
+    if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
+    {
+        while (CurrentAngle <= desangle.ANGLE)
+        {
+            Round_left();
+            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Round_stop();
+            CurrentAngle += 6;
+            switch (GetAnchorNumber())
+            {
+                case 0:
+                    break;
+                case 1:
+                    Hal_DelayXms(1 * 700);
+                    break;
+                case 2:
+                    Hal_DelayXms(2 * 700);
+                    break;
+                case 3:
+                    Hal_DelayXms(3 * 700);
+                    break;
+                default:
+                    break;
+            }
+            Send_GetRssiCommd(CurrentAngle);
+        }
+    }
+    else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
+    {
+        while (CurrentAngle >= desangle.ANGLE)
+        {
+            Round_right();
+            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Round_stop();
+            CurrentAngle -= 6;
+            switch (GetAnchorNumber())
+            {
+                case 0:
+                    break;
+                case 1:
+                    Hal_DelayXms(1 * 700);
+                    break;
+                case 2:
+                    Hal_DelayXms(2 * 700);
+                    break;
+                case 3:
+                    Hal_DelayXms(3 * 700);
+                    break;
+                default:
+                    break;
+            }
+            Send_GetRssiCommd(CurrentAngle);
+        }
+    }
+    else
+    {
+        return;
+    }
 }
 
 void Round_left()
 {
+
     uint8_t round_left_commd[7] = {0xff, 0x01, 0x00, 0x04, 0x01, 0x00, 0x06};
     // 发送命令
-    SendArrayHex(3,round_left_commd,7);
+    SendArrayHex(3, round_left_commd, 7);
 }
 
 void Round_right()
 {
     uint8_t round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
     // 发送命令
-    SendArrayHex(3,round_right_commd,7);
+    SendArrayHex(3, round_right_commd, 7);
 }
 
 void Round_stop()
 {
     uint8_t round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
     // 发送命令
-    SendArrayHex(3,round_stop_commd,7);
+    SendArrayHex(3, round_stop_commd, 7);
 }

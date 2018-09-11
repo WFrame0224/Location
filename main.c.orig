@@ -50,7 +50,7 @@ const uint8_t idata PongMsg[] = "PONG";
 
 
 // 存放中心站由433M信道传来的启动帧和电机控制帧
-extern CommdInfo commdinfo;
+extern CommdInfo commdinfo; 
 
 // 存放需求角度以及角度旋转的方向
 extern DesAngle desangle;
@@ -60,62 +60,48 @@ extern DesAngle desangle;
 void main()
 {
     int16_t angel1 = 0;
-    uint8_t angle0[2] = {0x00};
-	DesAngle initangel = {'+',72};
-    // 硬件初始化
-    DeviceInit();
-
-    angel1 = getCurrentAngle();
-    // 高位
-    angle0[0] = (angel1 >> 8) & 0xff;
-	// 地位
-    angle0[1] = angel1 & 0xff;
-    SendString(1, "The current angle:");
-    SendHex2Ascills(1, angle0, 2);
-    SendString(1, "\r\n");
-    Hal_DelayXms(1000);
-	
-	InitRound(initangel);
+	uint8_t angle0[2] = {0x00};
+	// 硬件初始化
+	DeviceInit();
 	
 	angel1 = getCurrentAngle();
-    // 高位
-    angle0[0] = (angel1 >> 8) & 0xff;
-	// 地位
-    angle0[1] = angel1 & 0xff;
-    SendString(1, "The current angle:");
-    SendHex2Ascills(1, angle0, 2);
-    SendString(1, "\r\n");
-    Hal_DelayXms(1000);
+		// 高位
+		angle0[0] = (angel1 >> 8) & 0xff;
+		angle0[1] = angel1 & 0xff;
+		SendString(1,"The current angle:");
+		SendHex2Ascills(1,angle0,2);
+		SendString(1,"\r\n");
+		Hal_DelayXms(1000);
 
-    while(1)
-    {
-        ;
-    }
+	while(1)
+	{
+		;
+	}
 }
 
 /* Related functions---------------------------------------*/
 
 void DeviceInit()
 {
-    // 硬件初始化
-
-    // 串口初始化
+	// 硬件初始化
+	
+	// 串口初始化
     Init_Uart();
-    SendString(1, "--------------Initing----------\r\n" );
-    SendString(1, "Uart initialization completed...........\r\n" );
-    // 定时器初始化
+	SendString(1, "--------------Initing----------\r\n" );
+	SendString(1, "Uart initialization completed...........\r\n" );
+	// 定时器初始化
     InitTimer0();
-    SendString(1, "Timer initialization completed...........\r\n" );
-    // 2.4G射频初始化
+	SendString(1, "Timer initialization completed...........\r\n" );
+	// 2.4G射频初始化
     Init_2G4();
-    SendString(1, "2.4G initialization completed...........\r\n" );
-
+	SendString(1, "2.4G initialization completed...........\r\n" );
+	
     SendString(1, "-------------Init finished--------\r\n" );
-
-    if(ReadAnchorNumber() == true)
-    {
-        SendString(1, "The Device is a Anchor, and the number is:");
-        send_16_2_str(1, GetAnchorNumber());
-        SendString(1, "\r\n---------------------\r\n" );
-    }
+	
+	if(getAnchorNumber() == true)
+	{
+		SendString(1,"The Device is a Anchor, and the number is:");
+		send_16_2_str(1,GetAnchorNumber());
+		SendString(1, "\r\n---------------------\r\n" );
+	}
 }

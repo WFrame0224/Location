@@ -36,19 +36,32 @@ typedef struct
 /*==============================Functions============================*/
 /*!
  * Function：从eeprom中获取锚节点的标号，默认地址是0x0000
- * Parameter:
- *      AnchorNumber：需要保存的标号指针
  * Return:
  *      false: 不是锚节点
  *      true:  是锚节点    
  */ 
-bool getAnchorNumber(char *AnchorNumber);
+bool ReadAnchorNumber();
+
+/*!
+ * Function：返回锚节点标号
+ * Return:
+ *      锚节点标号   
+ */ 
+uint8_t GetAnchorNumber();
+
 /*!
  * Function:接收433Mh信道经过无线串口发来的消息，解析出实际的电机启动、控制帧
  * Parameter:
  *      commdinfo:保存
  */ 
-void getAngle(uint8_t Msg);
+void getMsgAngle(uint8_t Msg);
+
+/**
+ * Function: 获取当前记录的角度
+ * return：
+ *      返回当前的角度
+ */ 
+int16_t getCurrentAngle();
 
 /*!
  * Function：实现电机的初始角度置位
@@ -71,15 +84,15 @@ void continueRound(DesAngle desangle);
  * Parameter:
  *     AngleDir：每一条RSSI读取指令对应的角度值
  */ 
-void Send_GetRssiCommd(DesAngle AngleDir);
+void Send_GetRssiCommd(int16_t ActualAngle);
 
 /**
- * Function：控制电机开始左转
+ * Function：控制电机开始左转，顺时针转动，度数增加
  */ 
 void Round_left();
 
 /**
- * Function: 控制电机开始右转
+ * Function: 控制电机开始右转，逆时针转动，度数减小
  */ 
 void Round_right();
 

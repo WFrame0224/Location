@@ -4,7 +4,7 @@
 #include "datatype.h"
 //**********************************************************************
 /* Defines---------------------------------------------*/
-#define RF_BL_ADV_CHANNEL_38                        2400000000 // Hz
+#define RF_BL_ADV_CHANNEL_38                        2426000000 // Hz
 
 /*!
  * \brief Defines the nominal frequency
