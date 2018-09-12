@@ -12,8 +12,9 @@
 // 定义锚节点接收到433Mhz控制命令的格式
 typedef enum
 {
-    InitCommd = 0,          // 属于启动帧命令
-    ControlCommd = 1        // 属于电机控制帧
+    NoneCommd = 0,			// 属于无效的命令
+	InitCommd = 1,          // 属于启动帧命令
+    ControlCommd = 2        // 属于电机控制帧命令
 }Commd_Type;
 
 // 定义命令接收缓存区的类型
@@ -75,9 +76,9 @@ void InitRound(DesAngle desangle);
  * Function: 实现电机的持续调节，默认以6度的分辨率进行发送，且需要延时相应的时间，（具体时间根据锚节点标号进行延时）
  * ，每6度需要利用2.4G信道发送RSSI读取控制帧到待定位节点，待定位节点，且每个待定位节点发送10次读取控制帧
  *  Parameter：
- *      desangle：需要置的初始角度总和
+ *      des_angle：需要置的初始角度总和
  */ 
-void continueRound(DesAngle desangle);
+void continueRound(DesAngle des_angle);
 
 /*!
  * Function:发送RSSI读取控制帧指令，利用2.4G信道进行发送
@@ -101,4 +102,9 @@ void Round_right();
  */ 
 void Round_stop();
 
+/**
+ * Function：锚节点运行主程序，实现锚节点的所有流程：
+ *      获取433中心站消息 --> 解析识别 --> 控制电机旋转 -->  发送RSSI读取命令给待测节点 --> 发送中心站over标志
+ */ 
+void Anchor_run();
 #endif

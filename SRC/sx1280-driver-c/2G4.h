@@ -39,6 +39,11 @@
 #define PINGPONGSIZE                                4
 
 /*!
+ * \brief Defines the buffer size, i.e. the payload size
+ */
+#define BUFFER_SIZE                                 100
+
+/*!
  * \brief Defines the states of the application
  */
 typedef enum

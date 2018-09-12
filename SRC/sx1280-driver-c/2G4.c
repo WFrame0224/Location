@@ -20,8 +20,15 @@
 #define Anchor
 
 /* Variables-------------------------------------------*/
-extern uint TimeIndex;
+/*!
+ * \brief The size of the buffer
+ */
+uint8_t BufferSize = BUFFER_SIZE;
 
+/*!
+ * \brief The buffer
+ */
+uint8_t Buffer[BUFFER_SIZE];
 
 /*!
  * \brief All the callbacks are stored in a structure,重新写的回调函数

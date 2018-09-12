@@ -21,6 +21,9 @@ uint8_t const round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
 // 停止旋转命令
 uint8_t const round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
 
+// RSSI读取命令结束
+uint8_t const RSSI_OVER[8] = {'R','S','S','I','O','V','E','R'};
+
 
 // 存放需求角度以及角度旋转的方向
 extern DesAngle desangle = {'+', 0x0000};
@@ -32,6 +35,34 @@ static int16_t CurrentAngle = 0x0000;
 static uint8_t AnchorNumber = 0;
 
 /*========================Functions================================*/
+
+void Anchor_run()
+{
+    while(1)
+    {
+        if(commdinfo.Commd_In_Flag == true)
+        { 
+            commdinfo.Commd_In_Flag = false;
+			switch(commdinfo.Commd_Type)
+            {
+                case InitCommd:                 // 如果收到的命令是启动帧控制
+                    // 控制电机转动至初始位置
+                    InitRound(desangle);
+                    break;
+                    
+                case ControlCommd:              // 如果收到的命令是电机控制帧命令
+                    // 控制电机逐渐转动，直到转至需求角度
+                    continueRound(desangle);
+                    break;
+
+                case NoneCommd:
+
+                default:
+                    break;
+            }
+        }
+    }
+}
 
 bool ReadAnchorNumber()
 {
@@ -83,6 +114,7 @@ void getMsgAngle(uint8_t Msg)
         else
         {
             commdinfo.Commd_In_Flag = false;
+            commdinfo.Commd_Type = NoneCommd;
             return;
         }
         desangle.F = commdinfo.Commd[3];                                 // 得到转动方向
@@ -228,6 +260,8 @@ void continueRound(DesAngle des_angle)
                     Hal_DelayXms(1 * 700);
                     break;
                 case 3:
+                    // RSSI读取命令发送完毕
+                    SendArrayHex(4, RSSI_OVER, 8);
                     break;
                 default:
                     break;
@@ -275,11 +309,14 @@ void continueRound(DesAngle des_angle)
                     Hal_DelayXms(1 * 700);
                     break;
                 case 3:
+                    // RSSI读取命令发送完毕
+                    SendArrayHex(4, RSSI_OVER, 8);
                     break;
                 default:
                     break;
             }
         }
+       
     }
     else
     {
