@@ -128,9 +128,6 @@ void Tx_Msg_2G4(uint8_t *msg, uint8_t msg_size)
     // t3，4--填充要发送的数据，并设置为发送模式
     SX1280SendPayload(msg, msg_size, Tx_ticktime);
 
-    SendString(1, msg);
-    SendString(1, "\r\n");
-    Delay_Xms(1000);
 }
 int8_t Rx_Msg_2G4(uint8_t* Buffer, uint8_t* BufferSize, uint8_t maxmsize )
 {
