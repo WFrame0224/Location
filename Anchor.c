@@ -14,8 +14,16 @@
 // 存放中心站由433M信道传来的启动帧和电机控制帧
 extern CommdInfo commdinfo = {{0x00}, 0, 0, false};
 
+// 逆时针旋转命令
+uint8_t const round_left_commd[7] = {0xff, 0x01, 0x00, 0x04, 0x01, 0x00, 0x06};
+// 顺时针旋转命令
+uint8_t const round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
+// 停止旋转命令
+uint8_t const round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
+
+
 // 存放需求角度以及角度旋转的方向
-extern DesAngle desangle = {'-', 0x0000};
+extern DesAngle desangle = {'+', 0x0000};
 
 // 记录当前的实际角度,不同于DesAngle,自带符号位
 static int16_t CurrentAngle = 0x0000;
@@ -90,7 +98,7 @@ int16_t getCurrentAngle()
 void Send_GetRssiCommd(int16_t ActualAngle)
 {
     uint8_t i = 0;
-    // 读取控制帧                  帧头   标号  符号     角度     次数  帧尾
+    // 读取控制帧                  帧头 标号  符号    角度   次数  帧尾
     uint8_t getrssicommd[9] = {'a', 'b', 0, 0x00, 0x00, 0x00, 0, 'a', 'b'};
     // 存入当前标号
     getrssicommd[2] = GetAnchorNumber();
@@ -172,17 +180,23 @@ void InitRound(DesAngle desangle)
     }
 }
 
-void continueRound(DesAngle desangle)
+void continueRound(DesAngle des_angle)
 {
+	int16_t angel1 = 0;
+	uint8_t angle0[2] = {0x00};
+	uint16_t mechine_time = 0; 
 
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
-        while (CurrentAngle <= desangle.ANGLE)
+        des_angle.ANGLE += CurrentAngle;
+		while (CurrentAngle < des_angle.ANGLE)
         {
             Round_left();
-            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+			mechine_time = (uint16_t)(6 / 0.008);
+            Hal_DelayXms(mechine_time); // 以6度的分辨率进行
             Round_stop();
-            CurrentAngle += 6;
+            CurrentAngle = CurrentAngle + 6;
+			
             switch (GetAnchorNumber())
             {
                 case 0:
@@ -199,17 +213,37 @@ void continueRound(DesAngle desangle)
                 default:
                     break;
             }
+			
             Send_GetRssiCommd(CurrentAngle);
+			
+			switch (GetAnchorNumber())
+            {
+                case 0:
+					Hal_DelayXms(3 * 700);
+                    break;
+                case 1:
+                    Hal_DelayXms(2 * 700);
+                    break;
+                case 2:
+                    Hal_DelayXms(1 * 700);
+                    break;
+                case 3:
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
+    else if (des_angle.F == '-') // 顺时针旋转，向右转，度数减小
     {
-        while (CurrentAngle >= desangle.ANGLE)
+        des_angle.ANGLE -= CurrentAngle;
+		while (CurrentAngle > des_angle.ANGLE)
         {
             Round_right();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
             Round_stop();
-            CurrentAngle -= 6;
+            CurrentAngle = CurrentAngle - 6;
+			
             switch (GetAnchorNumber())
             {
                 case 0:
@@ -226,7 +260,25 @@ void continueRound(DesAngle desangle)
                 default:
                     break;
             }
+			
             Send_GetRssiCommd(CurrentAngle);
+			
+			switch (GetAnchorNumber())
+            {
+                case 0:
+					Hal_DelayXms(3 * 700);
+                    break;
+                case 1:
+                    Hal_DelayXms(2 * 700);
+                    break;
+                case 2:
+                    Hal_DelayXms(1 * 700);
+                    break;
+                case 3:
+                    break;
+                default:
+                    break;
+            }
         }
     }
     else
@@ -237,22 +289,18 @@ void continueRound(DesAngle desangle)
 
 void Round_left()
 {
-
-    uint8_t round_left_commd[7] = {0xff, 0x01, 0x00, 0x04, 0x01, 0x00, 0x06};
     // 发送命令
     SendArrayHex(3, round_left_commd, 7);
 }
 
 void Round_right()
 {
-    uint8_t round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
     // 发送命令
     SendArrayHex(3, round_right_commd, 7);
 }
 
 void Round_stop()
 {
-    uint8_t round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
     // 发送命令
     SendArrayHex(3, round_stop_commd, 7);
 }

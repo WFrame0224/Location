@@ -87,9 +87,19 @@ void main()
     SendString(1, "\r\n");
     Hal_DelayXms(1000);
 
+	initangel.F = '+';
+	initangel.ANGLE = 126;
+	
+	continueRound(initangel);
+	
     while(1)
     {
-        ;
+        
+//		SendString(1, "hello-----------\r\n");
+//		angel1 = 1;
+//		Hal_DelayXms(10000);
+//		angel1 = 0;
+		;
     }
 }
 

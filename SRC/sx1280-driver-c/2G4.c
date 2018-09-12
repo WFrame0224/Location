@@ -84,7 +84,7 @@ void Init_2G4()
     packetParams.PacketType = PACKET_TYPE_LORA;
     packetParams.Params.LoRa.PreambleLength = 0x12;
     packetParams.Params.LoRa.HeaderType = LORA_PACKET_VARIABLE_LENGTH;
-    packetParams.Params.LoRa.PayloadLength = 1;
+    packetParams.Params.LoRa.PayloadLength = 9;
     packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
 

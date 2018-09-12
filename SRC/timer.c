@@ -17,7 +17,9 @@ void InitTimer0()
 
 void Hal_DelayXms(uint16_t Xms)
 {
-    while (TimeIndex != Xms)
+    TimeIndex = 0;
+	
+	while (TimeIndex < Xms)
     {
         ;
     }
