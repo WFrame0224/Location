@@ -20,6 +20,7 @@
 #define Timer0Hz 1000 //每1ms进入一次定时器中断
 
 /* 引脚定义 */
-
+sbit M0 = P0^5;
+sbit M1 = P0^4;
 
 #endif

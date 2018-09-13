@@ -3,8 +3,8 @@
  * @Description:
  *      本程序实现了四个串口的通信，其中根据项目PCB设定：
  *      串口1: 2.4G模块使用，作为RSSI信号采集端
- *      串口2: 433MHz模块使用，作为RSSI信号的数据收集端
- *      串口3: 预留出陀螺仪等导航器件
+ *      串口2/4: 433MHz模块使用，作为RSSI信号的数据收集端
+ *      串口3: 用户控制电机
  */ 
 #include "uart.h"
 #include "Anchor.h"
@@ -114,8 +114,8 @@ void Init_UART1()
     SCON = 0x50;
     TL1 = (65536 - (FOSC / 4 / BAUD1));
     TH1 = (65536 - (FOSC / 4 / BAUD1)) >> 8;
-    AUXR |= 0X40; //
-//    AUXR = 0x40;  //定时器1为1T模式
+//    AUXR |= 0X40; //
+    AUXR = 0x40;  //定时器1为1T模式
     TMOD = 0x00;  //定时器1为模式0(16位自动重载)
     TR1 = 1;
     ES = 1; //使能串口1中断
@@ -166,7 +166,6 @@ void UART1_Isr() interrupt 4 using 1
     {
         RI = 0;
 		dat = SBUF;
-		S2BUF = dat;
     }
 }
 
@@ -184,7 +183,6 @@ void UART2_Isr() interrupt 8
         S2CON &= ~0x01; //清中断标志
 		
 		dat = S2BUF;
-		SBUF = dat;
     }
 }
 
@@ -215,5 +213,6 @@ void UART4_Isr() interrupt 18
 
         dat = S4BUF; 
 		getMsgAngle(dat);
+		SBUF = dat;
     }
 }

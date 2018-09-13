@@ -26,13 +26,13 @@ uint8_t const RSSI_OVER[8] = {'R','S','S','I','O','V','E','R'};
 
 
 // 存放需求角度以及角度旋转的方向
-extern DesAngle desangle = {'+', 0x0000};
+static DesAngle desangle = {'+', 0x0000};
 
 // 记录当前的实际角度,不同于DesAngle,自带符号位
-static int16_t CurrentAngle = 0x0000;
+extern int16_t CurrentAngle = 0x0000;
 
 // 存放锚节点的标号
-static uint8_t AnchorNumber = 0;
+static Anchor_Number Anchor_Num = 0;
 
 /*========================Functions================================*/
 
@@ -47,12 +47,12 @@ void Anchor_run()
             {
                 case InitCommd:                 // 如果收到的命令是启动帧控制
                     // 控制电机转动至初始位置
-                    InitRound(desangle);
+                    InitRound();
                     break;
                     
                 case ControlCommd:              // 如果收到的命令是电机控制帧命令
                     // 控制电机逐渐转动，直到转至需求角度
-                    continueRound(desangle);
+                    continueRound();
                     break;
 
                 case NoneCommd:
@@ -75,12 +75,12 @@ bool ReadAnchorNumber()
         return false;
     }
 
-    AnchorNumber = Msg[1] - '0'; // 得到实际的标号
+    Anchor_Num = Msg[1] - '0'; // 得到实际的标号
     return true;
 }
 uint8_t GetAnchorNumber()
 {
-    return AnchorNumber;
+    return Anchor_Num;
 }
 
 void getMsgAngle(uint8_t Msg)
@@ -158,7 +158,7 @@ void Send_GetRssiCommd(int16_t ActualAngle)
     }
 }
 
-void InitRound(DesAngle desangle)
+void InitRound()
 {
     /**
 	 * 电机旋转 8度/s	 
@@ -166,19 +166,19 @@ void InitRound(DesAngle desangle)
     // 先根据锚节点标号，对应到实际的角度值
     switch (GetAnchorNumber())
     {
-        case 0: // 锚节点0
+        case Anchor_0: // 锚节点0
             CurrentAngle += 180;
             break;
 
-        case 1: // 锚节点1
+        case Anchor_1: // 锚节点1
             CurrentAngle += 270;
             break;
 
-        case 2: // 锚节点2
+        case Anchor_2: // 锚节点2
             CurrentAngle += 0;
             break;
 
-        case 3: // 锚节点3
+        case Anchor_3: // 锚节点3
             CurrentAngle += 90;
             break;
 
@@ -212,7 +212,7 @@ void InitRound(DesAngle desangle)
     }
 }
 
-void continueRound(DesAngle des_angle)
+void continueRound()
 {
 	int16_t angel1 = 0;
 	uint8_t angle0[2] = {0x00};
@@ -220,8 +220,8 @@ void continueRound(DesAngle des_angle)
 
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
-        des_angle.ANGLE += CurrentAngle;
-		while (CurrentAngle < des_angle.ANGLE)
+        desangle.ANGLE += CurrentAngle;
+		while (CurrentAngle < desangle.ANGLE)
         {
             Round_left();
 			mechine_time = (uint16_t)(6 / 0.008);
@@ -231,15 +231,15 @@ void continueRound(DesAngle des_angle)
 			
             switch (GetAnchorNumber())
             {
-                case 0:
+                case Anchor_0:
                     break;
-                case 1:
+                case Anchor_1:
                     Hal_DelayXms(1 * 700);
                     break;
-                case 2:
+                case Anchor_2:
                     Hal_DelayXms(2 * 700);
                     break;
-                case 3:
+                case Anchor_3:
                     Hal_DelayXms(3 * 700);
                     break;
                 default:
@@ -250,16 +250,16 @@ void continueRound(DesAngle des_angle)
 			
 			switch (GetAnchorNumber())
             {
-                case 0:
+                case Anchor_0:
 					Hal_DelayXms(3 * 700);
                     break;
-                case 1:
+                case Anchor_1:
                     Hal_DelayXms(2 * 700);
                     break;
-                case 2:
+                case Anchor_2:
                     Hal_DelayXms(1 * 700);
                     break;
-                case 3:
+                case Anchor_3:
                     // RSSI读取命令发送完毕
                     SendArrayHex(4, RSSI_OVER, 8);
                     break;
@@ -268,10 +268,10 @@ void continueRound(DesAngle des_angle)
             }
         }
     }
-    else if (des_angle.F == '-') // 顺时针旋转，向右转，度数减小
+    else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
-        des_angle.ANGLE -= CurrentAngle;
-		while (CurrentAngle > des_angle.ANGLE)
+        desangle.ANGLE -= CurrentAngle;
+		while (CurrentAngle > desangle.ANGLE)
         {
             Round_right();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
@@ -280,15 +280,15 @@ void continueRound(DesAngle des_angle)
 			
             switch (GetAnchorNumber())
             {
-                case 0:
+                case Anchor_0:
                     break;
-                case 1:
+                case Anchor_1:
                     Hal_DelayXms(1 * 700);
                     break;
-                case 2:
+                case Anchor_2:
                     Hal_DelayXms(2 * 700);
                     break;
-                case 3:
+                case Anchor_3:
                     Hal_DelayXms(3 * 700);
                     break;
                 default:
@@ -299,16 +299,16 @@ void continueRound(DesAngle des_angle)
 			
 			switch (GetAnchorNumber())
             {
-                case 0:
+                case Anchor_0:
 					Hal_DelayXms(3 * 700);
                     break;
-                case 1:
+                case Anchor_1:
                     Hal_DelayXms(2 * 700);
                     break;
-                case 2:
+                case Anchor_2:
                     Hal_DelayXms(1 * 700);
                     break;
-                case 3:
+                case Anchor_3:
                     // RSSI读取命令发送完毕
                     SendArrayHex(4, RSSI_OVER, 8);
                     break;

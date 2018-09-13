@@ -17,6 +17,15 @@ typedef enum
     ControlCommd = 2        // 属于电机控制帧命令
 }Commd_Type;
 
+// 定义锚节点角色
+typedef enum
+{
+	Anchor_0 = 0,
+	Anchor_1 = 1,
+	Anchor_2 = 2,
+	Anchor_3 = 3
+}Anchor_Number;
+
 // 定义命令接收缓存区的类型
 typedef struct
 {
@@ -66,19 +75,15 @@ int16_t getCurrentAngle();
 
 /*!
  * Function：实现电机的初始角度置位
- * Parameter：
- *      desangle：需要置的初始角度总和
- * 注：电机的控制采用 串口4 发送控制命令
+ * 注：电机的控制采用 串口3 发送控制命令
  */ 
-void InitRound(DesAngle desangle);
+void InitRound();
 
 /*!
  * Function: 实现电机的持续调节，默认以6度的分辨率进行发送，且需要延时相应的时间，（具体时间根据锚节点标号进行延时）
  * ，每6度需要利用2.4G信道发送RSSI读取控制帧到待定位节点，待定位节点，且每个待定位节点发送10次读取控制帧
- *  Parameter：
- *      des_angle：需要置的初始角度总和
  */ 
-void continueRound(DesAngle des_angle);
+void continueRound();
 
 /*!
  * Function:发送RSSI读取控制帧指令，利用2.4G信道进行发送

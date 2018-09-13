@@ -25,12 +25,6 @@
 
 /* Variables-------------------------------------------*/
 
-// 存放中心站由433M信道传来的启动帧和电机控制帧
-extern CommdInfo commdinfo;
-
-// 存放需求角度以及角度旋转的方向
-extern DesAngle desangle;
-
 
 /* Main function---------------------------------------*/
 void main()
@@ -49,7 +43,8 @@ void main()
 void DeviceInit()
 {
     // 硬件初始化
-
+	M0 = 0;
+	M1 = 0;
     // 串口初始化
     Init_Uart();
     SendString(1, "--------------Initing----------\r\n" );
