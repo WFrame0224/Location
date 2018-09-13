@@ -23,7 +23,8 @@ typedef enum
 	Anchor_0 = 0,
 	Anchor_1 = 1,
 	Anchor_2 = 2,
-	Anchor_3 = 3
+	Anchor_3 = 3,
+	Anchor_None = 99
 }Anchor_Number;
 
 // 定义命令接收缓存区的类型

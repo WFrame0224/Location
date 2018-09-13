@@ -24,13 +24,19 @@
 
 
 /* Variables-------------------------------------------*/
-
+extern uint16_t idata CurrentAngle = 0x0000;
 
 /* Main function---------------------------------------*/
 void main()
-{
+{	
+	uint8_t angle[2] = {0x00};
     // 硬件初始化
     DeviceInit();
+
+	angle[0] = (CurrentAngle >> 8) & 0xff;
+    angle[1] = CurrentAngle;
+    SendString(1,"The CurrentAngle is:");
+    SendHex2Ascills(1,angle,2);
 
     while(1)
     {
