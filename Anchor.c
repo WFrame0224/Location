@@ -33,6 +33,9 @@ extern uint16_t idata CurrentAngle;
 // 存放锚节点的标号
 Anchor_Number Anchor_Num = Anchor_None;
 
+// 初始化设置计数器
+uint8_t Init_time = 0;
+
 /*========================Functions================================*/
 
 void Anchor_run()
@@ -44,29 +47,35 @@ void Anchor_run()
             commdinfo.Commd_In_Flag = false;
 			switch(commdinfo.Commd_Type)
             {
-                case InitCommd:                 // 如果收到的命令是启动帧控制
-                    // 先根据锚节点标号，对应到实际的角度值
-					switch (GetAnchorNumber())
+                case InitCommd:                 	// 如果收到的命令是启动帧控制
+                    
+					if(Init_time == 0)
 					{
-						case Anchor_0: // 锚节点0
-							CurrentAngle = CurrentAngle + 180;
-							break;
+						Init_time = Init_time + 1;	// 为保证角度设置只是设置一次 
+								
+						// 先根据锚节点标号，对应到实际的角度值
+						switch (GetAnchorNumber())
+						{
+							case Anchor_0: // 锚节点0
+								CurrentAngle = CurrentAngle + 180;
+								break;
 
-						case Anchor_1: // 锚节点1
-							CurrentAngle = CurrentAngle + 270;
-							break;
+							case Anchor_1: // 锚节点1
+								CurrentAngle = CurrentAngle + 270;
+								break;
 
-						case Anchor_2: // 锚节点2
-							CurrentAngle = CurrentAngle + 0;
-							break;
+							case Anchor_2: // 锚节点2
+								CurrentAngle = CurrentAngle + 0;
+								break;
 
-						case Anchor_3: // 锚节点3
-							CurrentAngle = CurrentAngle + 90;
-							break;
+							case Anchor_3: // 锚节点3
+								CurrentAngle = CurrentAngle + 90;
+								break;
 
-						default: // 如果不是锚节点
-							return;
-							break;
+							default: // 如果不是锚节点
+								return;
+								break;
+						}
 					}
 					
 					// 控制电机转动至初始位置
@@ -281,7 +290,7 @@ void continueRound()
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
-        desangle.ANGLE -= CurrentAngle;
+        desangle.ANGLE = (CurrentAngle) - desangle.ANGLE;
 		while (CurrentAngle > desangle.ANGLE)
         {
             Round_right();
@@ -326,11 +335,11 @@ void continueRound()
                 default:
                     break;
             }
+			angle[0] = (CurrentAngle >> 8) & 0xff;
+			angle[1] = CurrentAngle & 0xff;
+			SendString(1,"The CurrentAngle is:");
+			SendHex2Ascills(1,angle,2);
         }
-        angle[0] = (CurrentAngle >> 8) & 0xff;
-        angle[1] = CurrentAngle & 0xff;
-        SendString(1,"The CurrentAngle is:");
-        SendHex2Ascills(1,angle,2);
     }
     else
     {

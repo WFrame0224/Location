@@ -109,7 +109,7 @@ void Init_Uart()
 }
 void Init_UART1()
 {
-    P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
+//    P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
 
     SCON = 0x50;
     TL1 = (65536 - (FOSC / 4 / BAUD1));
