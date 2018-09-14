@@ -22,8 +22,7 @@ uint8_t const round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
 uint8_t const round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
 
 // RSSI读取命令结束
-const uint8_t RSSI_OVER[8] = {'R','S','S','I','O','V','E','R'};
-
+const uint8_t RSSI_OVER[8] = {'R', 'S', 'S', 'I', 'O', 'V', 'E', 'R'};
 
 // 存放需求角度以及角度旋转的方向
 DesAngle desangle = {'+', 0x0000};
@@ -40,60 +39,60 @@ uint8_t Init_time = 0;
 
 void Anchor_run()
 {
-    while(1)
+    while (1)
     {
-        if(commdinfo.Commd_In_Flag == true)
-        { 
+        if (commdinfo.Commd_In_Flag == true)
+        {
             commdinfo.Commd_In_Flag = false;
-			switch(commdinfo.Commd_Type)
+            switch (commdinfo.Commd_Type)
             {
-                case InitCommd:                 	// 如果收到的命令是启动帧控制
-                    
-					if(Init_time == 0)
-					{
-						Init_time = Init_time + 1;	// 为保证角度设置只是设置一次 
-								
-						// 先根据锚节点标号，对应到实际的角度值
-						switch (GetAnchorNumber())
-						{
-							case Anchor_0: // 锚节点0
-								CurrentAngle = CurrentAngle + 180;
-								break;
+            case InitCommd: // 如果收到的命令是启动帧控制
 
-							case Anchor_1: // 锚节点1
-								CurrentAngle = CurrentAngle + 270;
-								break;
+                if (Init_time == 0)
+                {
+                    Init_time = Init_time + 1; // 为保证角度设置只是设置一次
 
-							case Anchor_2: // 锚节点2
-								CurrentAngle = CurrentAngle + 0;
-								break;
+                    // 先根据锚节点标号，对应到实际的角度值
+                    switch (GetAnchorNumber())
+                    {
+                        case Anchor_0: // 锚节点0
+                            CurrentAngle = CurrentAngle + 180;
+                            break;
 
-							case Anchor_3: // 锚节点3
-								CurrentAngle = CurrentAngle + 90;
-								break;
+                        case Anchor_1: // 锚节点1
+                            CurrentAngle = CurrentAngle + 270;
+                            break;
 
-							default: // 如果不是锚节点
-								return;
-								break;
-						}
-					}
-					
-					// 控制电机转动至初始位置
-                    InitRound();
-					
-                    break;
-                    
-                case ControlCommd:              // 如果收到的命令是电机控制帧命令
-                    
-					// 控制电机逐渐转动，直到转至需求角度
-                    continueRound();
-				
-                    break;
+                        case Anchor_2: // 锚节点2
+                            CurrentAngle = CurrentAngle + 0;
+                            break;
 
-                case NoneCommd:
+                        case Anchor_3: // 锚节点3
+                            CurrentAngle = CurrentAngle + 90;
+                            break;
 
-                default:
-                    break;
+                        default: // 如果不是锚节点
+                            return;
+                            break;
+                    }
+                }
+
+                // 控制电机转动至初始位置
+                InitRound();
+
+                break;
+
+            case ControlCommd: // 如果收到的命令是电机控制帧命令
+
+                // 控制电机逐渐转动，直到转至需求角度
+                continueRound();
+
+                break;
+
+            case NoneCommd:
+
+            default:
+                break;
             }
         }
     }
@@ -196,7 +195,11 @@ void Send_GetRssiCommd(int16_t ActualAngle)
 
 void InitRound()
 {
+#ifdef UART_1
+
     uint8_t angle[2] = {0x00};
+
+#endif
     /**
 	 * 电机旋转 8度/s	 
 	 */
@@ -224,27 +227,36 @@ void InitRound()
     {
         return;
     }
+
+#ifdef UART_1
+
     angle[0] = (CurrentAngle >> 8) & 0xff;
     angle[1] = CurrentAngle;
-    SendString(1,"The CurrentAngle is:");
-    SendHex2Ascills(1,angle,2);
+    SendString(1, "The CurrentAngle is:");
+    SendHex2Ascills(1, angle, 2);
+
+#endif
 }
 
 void continueRound()
 {
 
+#ifdef UART_1
+
     uint8_t angle[2] = {0x00};
-    
+
+#endif
+
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
         desangle.ANGLE += (CurrentAngle);
-		while (CurrentAngle < desangle.ANGLE)
+        while (CurrentAngle < desangle.ANGLE)
         {
             Round_left();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
             Round_stop();
             CurrentAngle = CurrentAngle + 6;
-			
+
             switch (GetAnchorNumber())
             {
                 case Anchor_0:
@@ -261,13 +273,13 @@ void continueRound()
                 default:
                     break;
             }
-			
+
             Send_GetRssiCommd(CurrentAngle);
-			
-			switch (GetAnchorNumber())
+
+            switch (GetAnchorNumber())
             {
                 case Anchor_0:
-					Hal_DelayXms((3 - Anchor_0) * 700);
+                    Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_1:
                     Hal_DelayXms((3 - Anchor_1) * 700);
@@ -282,22 +294,27 @@ void continueRound()
                 default:
                     break;
             }
+
+#ifdef UART_1
+
             angle[0] = (CurrentAngle >> 8) & 0xff;
             angle[1] = CurrentAngle & 0xff;
-            SendString(1,"The CurrentAngle is:");
-            SendHex2Ascills(1,angle,2);
+            SendString(1, "The CurrentAngle is:");
+            SendHex2Ascills(1, angle, 2);
+
+#endif
         }
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
-        desangle.ANGLE = (CurrentAngle) - desangle.ANGLE;
-		while (CurrentAngle > desangle.ANGLE)
+        desangle.ANGLE = (CurrentAngle)-desangle.ANGLE;
+        while (CurrentAngle > desangle.ANGLE)
         {
             Round_right();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
             Round_stop();
             CurrentAngle = CurrentAngle - 6;
-			
+
             switch (GetAnchorNumber())
             {
                 case Anchor_0:
@@ -314,13 +331,13 @@ void continueRound()
                 default:
                     break;
             }
-			
+
             Send_GetRssiCommd(CurrentAngle);
-			
-			switch (GetAnchorNumber())
+
+            switch (GetAnchorNumber())
             {
                 case Anchor_0:
-					Hal_DelayXms((3 - Anchor_0) * 700);
+                    Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_1:
                     Hal_DelayXms((3 - Anchor_0) * 700);
@@ -335,10 +352,13 @@ void continueRound()
                 default:
                     break;
             }
-			angle[0] = (CurrentAngle >> 8) & 0xff;
-			angle[1] = CurrentAngle & 0xff;
-			SendString(1,"The CurrentAngle is:");
-			SendHex2Ascills(1,angle,2);
+#ifdef UART_1
+
+            angle[0] = (CurrentAngle >> 8) & 0xff;
+            angle[1] = CurrentAngle & 0xff;
+            SendString(1, "The CurrentAngle is:");
+            SendHex2Ascills(1, angle, 2);
+#endif
         }
     }
     else

@@ -5,7 +5,7 @@
  *      串口1: 2.4G模块使用，作为RSSI信号采集端
  *      串口2/4: 433MHz模块使用，作为RSSI信号的数据收集端
  *      串口3: 用户控制电机
- */ 
+ */
 #include "uart.h"
 #include "Anchor.h"
 
@@ -72,7 +72,7 @@ void SendArrayHex(unsigned char Uart_Port, char *s, uint n)
 }
 void SendArrayStr(unsigned char Uart_Port, char *p, uint n)
 {
-    while(n--)
+    while (n--)
     {
         send_16_2_str(Uart_Port, *p++);
     }
@@ -91,8 +91,8 @@ void send_16_2_str(unsigned char Uart_Port, uchar temp)
 }
 void SendHex2Ascills(unsigned char Uart_Port, unsigned char *p, uint n)
 {
-	int i = 0;
-	for(i = 0; i < n; i++)
+    int i = 0;
+    for (i = 0; i < n; i++)
     {
         send_16_2_str(Uart_Port, *p++);
     }
@@ -109,14 +109,14 @@ void Init_Uart()
 }
 void Init_UART1()
 {
-//    P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
+    //    P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
 
     SCON = 0x50;
     TL1 = (65536 - (FOSC / 4 / BAUD1));
     TH1 = (65536 - (FOSC / 4 / BAUD1)) >> 8;
-//    AUXR |= 0X40; //
-    AUXR = 0x40;  //定时器1为1T模式
-    TMOD = 0x00;  //定时器1为模式0(16位自动重载)
+    //    AUXR |= 0X40; //
+    AUXR = 0x40; //定时器1为1T模式
+    TMOD = 0x00; //定时器1为模式0(16位自动重载)
     TR1 = 1;
     ES = 1; //使能串口1中断
 
@@ -157,7 +157,7 @@ void Init_UART4()
 void UART1_Isr() interrupt 4 using 1
 {
     uint8_t idata dat = 0;
-	if (TI)
+    if (TI)
     {
         TI = 0;    //清中断标志
         busy1 = 0; //清忙标志
@@ -165,15 +165,15 @@ void UART1_Isr() interrupt 4 using 1
     if (RI)
     {
         RI = 0;
-		dat = SBUF;
+        dat = SBUF;
     }
 }
 
 void UART2_Isr() interrupt 8
 {
     uint8_t idata dat = 0;
-	
-	if (S2CON & 0x02)
+
+    if (S2CON & 0x02)
     {
         S2CON &= ~0x02; //清中断标志
         busy2 = 0;      //清忙标志
@@ -181,8 +181,8 @@ void UART2_Isr() interrupt 8
     if (S2CON & 0x01)
     {
         S2CON &= ~0x01; //清中断标志
-		
-		dat = S2BUF;
+
+        dat = S2BUF;
     }
 }
 
@@ -211,8 +211,12 @@ void UART4_Isr() interrupt 18
     {
         S4CON &= ~0x01; //清中断标志
 
-        dat = S4BUF; 
-		getMsgAngle(dat);
-		SBUF = dat;
+        dat = S4BUF;
+        getMsgAngle(dat);
+
+#ifdef UART_1
+        SBUF = dat;
+#endif
+
     }
 }
