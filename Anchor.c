@@ -31,7 +31,7 @@ DesAngle desangle = {'+', 0x0000};
 extern uint16_t idata CurrentAngle;
 
 // 存放锚节点的标号
-Anchor_Number Anchor_Num = Anchor_0;
+Anchor_Number Anchor_Num = Anchor_None;
 
 /*========================Functions================================*/
 
@@ -241,13 +241,13 @@ void continueRound()
                 case Anchor_0:
                     break;
                 case Anchor_1:
-                    Hal_DelayXms(1 * 700);
+                    Hal_DelayXms(Anchor_1 * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(2 * 700);
+                    Hal_DelayXms(Anchor_2 * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms(3 * 700);
+                    Hal_DelayXms(Anchor_3 * 700);
                     break;
                 default:
                     break;
@@ -258,13 +258,13 @@ void continueRound()
 			switch (GetAnchorNumber())
             {
                 case Anchor_0:
-					Hal_DelayXms(3 * 700);
+					Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_1:
-                    Hal_DelayXms(2 * 700);
+                    Hal_DelayXms((3 - Anchor_1) * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(1 * 700);
+                    Hal_DelayXms((3 - Anchor_2) * 700);
                     break;
                 case Anchor_3:
                     // RSSI读取命令发送完毕
@@ -294,13 +294,13 @@ void continueRound()
                 case Anchor_0:
                     break;
                 case Anchor_1:
-                    Hal_DelayXms(1 * 700);
+                    Hal_DelayXms(Anchor_1 * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(2 * 700);
+                    Hal_DelayXms(Anchor_2 * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms(3 * 700);
+                    Hal_DelayXms(Anchor_3 * 700);
                     break;
                 default:
                     break;
@@ -311,13 +311,13 @@ void continueRound()
 			switch (GetAnchorNumber())
             {
                 case Anchor_0:
-					Hal_DelayXms(3 * 700);
+					Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_1:
-                    Hal_DelayXms(2 * 700);
+                    Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(1 * 700);
+                    Hal_DelayXms((3 - Anchor_0) * 700);
                     break;
                 case Anchor_3:
                     // RSSI读取命令发送完毕
