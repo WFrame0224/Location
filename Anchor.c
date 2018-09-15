@@ -83,7 +83,8 @@ void Anchor_run()
                 break;
 
             case ControlCommd: // 如果收到的命令是电机控制帧命令
-
+				// 发送RSSI读取控制帧
+				Send_GetRssiCommd(CurrentAngle);
                 // 控制电机逐渐转动，直到转至需求角度
                 continueRound();
 
@@ -227,7 +228,7 @@ void InitRound()
     {
         return;
     }
-
+	
 #ifdef UART_1
 
     angle[0] = (CurrentAngle >> 8) & 0xff;
@@ -262,13 +263,13 @@ void continueRound()
                 case Anchor_1:
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(Anchor_2 * 700);
+                    Hal_DelayXms((Anchor_2 - 1) * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms(Anchor_3 * 700);
+                    Hal_DelayXms((Anchor_3 - 1) * 700);
                     break;
                 case Anchor_4:
-                    Hal_DelayXms(Anchor_4 * 700);
+                    Hal_DelayXms((Anchor_4 -1 ) * 700);
                     break;
                 default:
                     break;
@@ -279,17 +280,15 @@ void continueRound()
             switch (GetAnchorNumber())
             {
                 case Anchor_1:
-                    Hal_DelayXms((3 - Anchor_1) * 700);
+                    Hal_DelayXms((4 - Anchor_1) * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms((3 - Anchor_2) * 700);
+                    Hal_DelayXms((4 - Anchor_2) * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms((3 - Anchor_3) * 700);
+                    Hal_DelayXms((4 - Anchor_3) * 700);
                     break;
                 case Anchor_4:
-                    // RSSI读取命令发送完毕
-                    SendArrayHex(4, RSSI_OVER, 8);
                     break;
                 default:
                     break;
@@ -304,6 +303,13 @@ void continueRound()
 
 #endif
         }
+		switch (GetAnchorNumber())
+        {
+			case Anchor_4:
+			// RSSI读取命令发送完毕
+			SendArrayHex(4, RSSI_OVER, 8);
+			break;
+		}
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
@@ -320,13 +326,13 @@ void continueRound()
                 case Anchor_1:
                     break;
                 case Anchor_2:
-                    Hal_DelayXms(Anchor_2 * 700);
+                    Hal_DelayXms((Anchor_2 - 1) * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms(Anchor_3 * 700);
+                    Hal_DelayXms((Anchor_3 - 1) * 700);
                     break;
                 case Anchor_4:
-                    Hal_DelayXms(Anchor_4 * 700);
+                    Hal_DelayXms((Anchor_4 - 1) * 700);
                     break;
                 default:
                     break;
@@ -337,17 +343,15 @@ void continueRound()
             switch (GetAnchorNumber())
             {
                 case Anchor_1:
-                    Hal_DelayXms((3 - Anchor_1) * 700);
+                    Hal_DelayXms((4 - Anchor_1) * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms((3 - Anchor_1) * 700);
+                    Hal_DelayXms((4 - Anchor_2) * 700);
                     break;
                 case Anchor_3:
-                    Hal_DelayXms((3 - Anchor_1) * 700);
+                    Hal_DelayXms((4 - Anchor_3) * 700);
                     break;
                 case Anchor_4:
-                    // RSSI读取命令发送完毕
-                    SendArrayHex(4, RSSI_OVER, 8);
                     break;
                 default:
                     break;
@@ -360,6 +364,13 @@ void continueRound()
             SendHex2Ascills(1, angle, 2);
 #endif
         }
+		switch (GetAnchorNumber())
+        {
+			case Anchor_4:
+			// RSSI读取命令发送完毕
+			SendArrayHex(4, RSSI_OVER, 8);
+			break;
+		}
     }
     else
     {
