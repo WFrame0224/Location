@@ -55,19 +55,19 @@ void Anchor_run()
                     // 先根据锚节点标号，对应到实际的角度值
                     switch (GetAnchorNumber())
                     {
-                        case Anchor_0: // 锚节点0
+                        case Anchor_1: // 锚节点0
                             CurrentAngle = CurrentAngle + 180;
                             break;
 
-                        case Anchor_1: // 锚节点1
+                        case Anchor_2: // 锚节点1
                             CurrentAngle = CurrentAngle + 270;
                             break;
 
-                        case Anchor_2: // 锚节点2
+                        case Anchor_3: // 锚节点2
                             CurrentAngle = CurrentAngle + 0;
                             break;
 
-                        case Anchor_3: // 锚节点3
+                        case Anchor_4: // 锚节点3
                             CurrentAngle = CurrentAngle + 90;
                             break;
 
@@ -259,16 +259,16 @@ void continueRound()
 
             switch (GetAnchorNumber())
             {
-                case Anchor_0:
-                    break;
                 case Anchor_1:
-                    Hal_DelayXms(Anchor_1 * 700);
                     break;
                 case Anchor_2:
                     Hal_DelayXms(Anchor_2 * 700);
                     break;
                 case Anchor_3:
                     Hal_DelayXms(Anchor_3 * 700);
+                    break;
+                case Anchor_4:
+                    Hal_DelayXms(Anchor_4 * 700);
                     break;
                 default:
                     break;
@@ -278,9 +278,6 @@ void continueRound()
 
             switch (GetAnchorNumber())
             {
-                case Anchor_0:
-                    Hal_DelayXms((3 - Anchor_0) * 700);
-                    break;
                 case Anchor_1:
                     Hal_DelayXms((3 - Anchor_1) * 700);
                     break;
@@ -288,6 +285,9 @@ void continueRound()
                     Hal_DelayXms((3 - Anchor_2) * 700);
                     break;
                 case Anchor_3:
+                    Hal_DelayXms((3 - Anchor_3) * 700);
+                    break;
+                case Anchor_4:
                     // RSSI读取命令发送完毕
                     SendArrayHex(4, RSSI_OVER, 8);
                     break;
@@ -317,16 +317,16 @@ void continueRound()
 
             switch (GetAnchorNumber())
             {
-                case Anchor_0:
-                    break;
                 case Anchor_1:
-                    Hal_DelayXms(Anchor_1 * 700);
                     break;
                 case Anchor_2:
                     Hal_DelayXms(Anchor_2 * 700);
                     break;
                 case Anchor_3:
                     Hal_DelayXms(Anchor_3 * 700);
+                    break;
+                case Anchor_4:
+                    Hal_DelayXms(Anchor_4 * 700);
                     break;
                 default:
                     break;
@@ -336,16 +336,16 @@ void continueRound()
 
             switch (GetAnchorNumber())
             {
-                case Anchor_0:
-                    Hal_DelayXms((3 - Anchor_0) * 700);
-                    break;
                 case Anchor_1:
-                    Hal_DelayXms((3 - Anchor_0) * 700);
+                    Hal_DelayXms((3 - Anchor_1) * 700);
                     break;
                 case Anchor_2:
-                    Hal_DelayXms((3 - Anchor_0) * 700);
+                    Hal_DelayXms((3 - Anchor_1) * 700);
                     break;
                 case Anchor_3:
+                    Hal_DelayXms((3 - Anchor_1) * 700);
+                    break;
+                case Anchor_4:
                     // RSSI读取命令发送完毕
                     SendArrayHex(4, RSSI_OVER, 8);
                     break;

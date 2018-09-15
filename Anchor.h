@@ -20,10 +20,10 @@ typedef enum
 // 定义锚节点角色
 typedef enum
 {
-	Anchor_0 = 0,
 	Anchor_1 = 1,
 	Anchor_2 = 2,
 	Anchor_3 = 3,
+	Anchor_4 = 4,
 	Anchor_None = 99
 }Anchor_Number;
 
