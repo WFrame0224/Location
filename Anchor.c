@@ -46,54 +46,64 @@ void Anchor_run()
             commdinfo.Commd_In_Flag = false;
             switch (commdinfo.Commd_Type)
             {
-            case InitCommd: // 如果收到的命令是启动帧控制
+				case InitCommd: // 如果收到的命令是启动帧控制
 
-                if (Init_time == 0)
-                {
-                    Init_time = Init_time + 1; // 为保证角度设置只是设置一次
+					if (Init_time == 0)
+					{
+						Init_time = Init_time + 1; // 为保证角度设置只是设置一次
 
-                    // 先根据锚节点标号，对应到实际的角度值
-                    switch (GetAnchorNumber())
-                    {
-                        case Anchor_1: // 锚节点0
-                            CurrentAngle = CurrentAngle + 180;
-                            break;
+						// 先根据锚节点标号，对应到实际的角度值
+						switch (GetAnchorNumber())
+						{
+							case Anchor_1: // 锚节点1
+								CurrentAngle = CurrentAngle + 180;
+								break;
 
-                        case Anchor_2: // 锚节点1
-                            CurrentAngle = CurrentAngle + 270;
-                            break;
+							case Anchor_2: // 锚节点2
+								CurrentAngle = CurrentAngle + 270;
+								break;
 
-                        case Anchor_3: // 锚节点2
-                            CurrentAngle = CurrentAngle + 0;
-                            break;
+							case Anchor_3: // 锚节点3
+								CurrentAngle = CurrentAngle + 0;
+								break;
 
-                        case Anchor_4: // 锚节点3
-                            CurrentAngle = CurrentAngle + 90;
-                            break;
+							case Anchor_4: // 锚节点4
+								CurrentAngle = CurrentAngle + 90;
+								break;
 
-                        default: // 如果不是锚节点
-                            return;
-                            break;
-                    }
-                }
+							default: // 如果不是锚节点
+								return;
+								break;
+						}
+					}
 
-                // 控制电机转动至初始位置
-                InitRound();
+					// 控制电机转动至初始位置
+					InitRound();
 
-                break;
+					break;
 
-            case ControlCommd: // 如果收到的命令是电机控制帧命令
-				// 发送RSSI读取控制帧
-				Send_GetRssiCommd(CurrentAngle);
-                // 控制电机逐渐转动，直到转至需求角度
-                continueRound();
+				case ControlCommd: // 如果收到的命令是电机控制帧命令
+					// 发送RSSI读取控制帧
+					Send_GetRssiCommd(CurrentAngle);
+				
+					// 控制电机逐渐转动，直到转至需求角度
+					continueRound();
+				
+					// 电机全部转动完毕之后，四号锚节点给433中心站发送 RSSIOVER 命令
+					switch (GetAnchorNumber())
+					{
+						case Anchor_4:
+						// RSSI读取命令发送完毕
+						SendArrayHex(4, RSSI_OVER, 8);
+						break;
+					}
 
-                break;
+					break;
 
-            case NoneCommd:
+				case NoneCommd:
 
-            default:
-                break;
+				default:
+					break;
             }
         }
     }
@@ -303,13 +313,6 @@ void continueRound()
 
 #endif
         }
-		switch (GetAnchorNumber())
-        {
-			case Anchor_4:
-			// RSSI读取命令发送完毕
-			SendArrayHex(4, RSSI_OVER, 8);
-			break;
-		}
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
@@ -364,18 +367,12 @@ void continueRound()
             SendHex2Ascills(1, angle, 2);
 #endif
         }
-		switch (GetAnchorNumber())
-        {
-			case Anchor_4:
-			// RSSI读取命令发送完毕
-			SendArrayHex(4, RSSI_OVER, 8);
-			break;
-		}
+		
     }
-    else
-    {
-        return;
-    }
+//    else
+//    {
+//        return;
+//    }
 }
 
 void Round_left()
