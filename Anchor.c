@@ -83,9 +83,7 @@ void Anchor_run()
 					break;
 
 				case ControlCommd: // 如果收到的命令是电机控制帧命令
-					// 发送RSSI读取控制帧
-					Send_GetRssiCommd(CurrentAngle);
-				
+					
 					// 控制电机逐渐转动，直到转至需求角度
 					continueRound();
 				
@@ -261,13 +259,9 @@ void continueRound()
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
         desangle.ANGLE += (CurrentAngle);
-        while (CurrentAngle < desangle.ANGLE)
-        {
-            Round_left();
-            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
-            Round_stop();
-            CurrentAngle = CurrentAngle + 6;
-
+        while (CurrentAngle <= desangle.ANGLE)
+        {       
+			// 延时不同的时间进行RSSI读取控制命令帧的发送
             switch (GetAnchorNumber())
             {
                 case Anchor_1:
@@ -303,6 +297,10 @@ void continueRound()
                 default:
                     break;
             }
+			Round_left();
+            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Round_stop();
+            CurrentAngle = CurrentAngle + 6;
 
 #ifdef UART_1
 
@@ -317,13 +315,8 @@ void continueRound()
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
         desangle.ANGLE = (CurrentAngle)-desangle.ANGLE;
-        while (CurrentAngle > desangle.ANGLE)
+        while (CurrentAngle >= desangle.ANGLE)
         {
-            Round_right();
-            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
-            Round_stop();
-            CurrentAngle = CurrentAngle - 6;
-
             switch (GetAnchorNumber())
             {
                 case Anchor_1:
@@ -359,6 +352,11 @@ void continueRound()
                 default:
                     break;
             }
+			Round_right();
+            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Round_stop();
+            CurrentAngle = CurrentAngle - 6;
+			
 #ifdef UART_1
 
             angle[0] = (CurrentAngle >> 8) & 0xff;
