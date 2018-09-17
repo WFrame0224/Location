@@ -12,6 +12,8 @@
 bit idata busy1, busy2, busy3, busy4; //串口发送标志
 const uchar idata _16_2_str[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
+// 用于保证命令的连续性，和正确性
+extern uint idata Msg_TimeIndex;
 /************************************************/
 
 /**串口发送字符
@@ -22,32 +24,32 @@ void SendData(unsigned char Uart_Port, unsigned char dat)
 {
     switch (Uart_Port)
     {
-    case 1:
-        while (busy1)
-            ;
-        busy1 = 1;
-        SBUF = dat;
-        break;
-    case 2:
-        while (busy2)
-            ;
-        busy2 = 1;
-        S2BUF = dat;
-        break;
-    case 3:
-        while (busy3)
-            ;
-        busy3 = 1;
-        S3BUF = dat;
-        break;
-    case 4:
-        while (busy4)
-            ;
-        busy4 = 1;
-        S4BUF = dat;
-        break;
-    default:
-        break;
+		case 1:
+			while (busy1)
+				;
+			busy1 = 1;
+			SBUF = dat;
+			break;
+		case 2:
+			while (busy2)
+				;
+			busy2 = 1;
+			S2BUF = dat;
+			break;
+		case 3:
+			while (busy3)
+				;
+			busy3 = 1;
+			S3BUF = dat;
+			break;
+		case 4:
+			while (busy4)
+				;
+			busy4 = 1;
+			S4BUF = dat;
+			break;
+		default:
+			break;
     }
 }
 
@@ -109,7 +111,7 @@ void Init_Uart()
 }
 void Init_UART1()
 {
-//	P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
+	P_SW1 = 0x40; // 将串口1切换至P3.6,P3.7
 
     SCON = 0x50;
     TL1 = (65536 - (FOSC / 4 / BAUD1));
@@ -212,8 +214,14 @@ void UART4_Isr() interrupt 18
         S4CON &= ~0x01; //清中断标志
 
         dat = S4BUF;
+		
+		// 较短时间内接收到有效命令
+		Msg_TimeIndex = 0;
+		
         getMsgAngle(dat);
-
+		
+		
+		
 #ifdef UART_1
         SBUF = dat;
 #endif

@@ -35,6 +35,7 @@ Anchor_Number Anchor_Num = Anchor_None;
 // 初始化设置计数器
 uint8_t Init_time = 0;
 
+extern uint8_t idata Msg_Index;
 /*========================Functions================================*/
 
 void Anchor_run()
@@ -88,21 +89,22 @@ void Anchor_run()
 					continueRound();
 				
 					// 电机全部转动完毕之后，四号锚节点给433中心站发送 RSSIOVER 命令
-					switch (GetAnchorNumber())
+					if(Anchor_Num == Anchor_1)
 					{
-						case Anchor_4:
 						// RSSI读取命令发送完毕
 						SendArrayHex(4, RSSI_OVER, 8);
-						break;
+						return;
 					}
 
 					break;
 
 				case NoneCommd:
-
+					break;
 				default:
 					break;
             }
+			// 命令类型复位，等待下一次接收
+			commdinfo.Commd_Type = NoneCommd;
         }
     }
 }
@@ -135,11 +137,14 @@ void getMsgAngle(uint8_t Msg)
     uint8_t i;
 
     commdinfo.Commd[commdinfo.Commd_Index] = Msg;
-    commdinfo.Commd_Index += 1;
-
+	Msg_Index += 1;
+    commdinfo.Commd_Index = Msg_Index;
+	
     if (commdinfo.Commd_Index == 9)
     {
         commdinfo.Commd_Index = 0;
+		Msg_Index = 0;
+		
         for (i = 0; i < 3; i++)
         {
             Head[i] = commdinfo.Commd[i];
@@ -163,6 +168,8 @@ void getMsgAngle(uint8_t Msg)
         }
         desangle.F = commdinfo.Commd[3];                                 // 得到转动方向
         desangle.ANGLE = (commdinfo.Commd[4] << 8) | commdinfo.Commd[5]; // 得到转动的角度
+		// 缓存区清零
+		memset((commdinfo.Commd), 0x00, 9);
     }
 }
 
@@ -195,7 +202,7 @@ void Send_GetRssiCommd(int16_t ActualAngle)
 
     for (i = 0; i < 10; i++) // 每个Anchor每次发送10个RSSI控制帧
     {
-        getrssicommd[6] = i;
+        getrssicommd[6] = i + 1;
         Tx_Msg_2G4(getrssicommd, 9);
         // 每次延时50ms
         Hal_DelayXms(50);
@@ -367,10 +374,6 @@ void continueRound()
         }
 		
     }
-//    else
-//    {
-//        return;
-//    }
 }
 
 void Round_left()

@@ -28,14 +28,20 @@ extern uint16_t idata CurrentAngle = 0x0000;
 /* Main function---------------------------------------*/
 void main()
 {	
+#ifdef UART_1
 	uint8_t angle[2] = {0x00};
+#endif
+
     // 硬件初始化
     DeviceInit();
 
+
+#ifdef UART_1
 	angle[0] = (CurrentAngle >> 8) & 0xff;
     angle[1] = CurrentAngle;
     SendString(1,"The CurrentAngle is:");
     SendHex2Ascills(1,angle,2);
+#endif
 
     while(1)
     {
