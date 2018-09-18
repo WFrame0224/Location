@@ -5,8 +5,7 @@
  * @Author:	王非
  * @Date:	2018.08.12
  * ***************************************
- * Function:程序功能.....
- *
+ * Function:作为锚节点的程序，等待启动帧和控制帧命令，控制电机旋转，同时利用2.4G信道发送消息
 */
 
 /* Inlcudes--------------------------------------------*/
@@ -21,6 +20,9 @@
 #include "Anchor.h"
 
 /* defines---------------------------------------------*/
+
+// 定义一个版本号
+const uint8_t SystemVersion[] = "V1_1159";
 
 /* Variables-------------------------------------------*/
 extern uint16_t idata CurrentAngle = 0x0000;
@@ -58,6 +60,11 @@ void DeviceInit()
 	M1 = 0;
     // 串口初始化
     Init_Uart();
+	
+	SendString(1,"\r\nThe System Version:_._.");
+	SendString(1,SystemVersion);
+	SendString(1,"._._\r\n\r\n");
+	
     SendString(1, "--------------Initing----------\r\n" );
     SendString(1, "Uart initialization completed...........\r\n" );
     // 定时器初始化
@@ -66,9 +73,10 @@ void DeviceInit()
     // 2.4G射频初始化
     Init_2G4();
     SendString(1, "2.4G initialization completed...........\r\n" );
-
     SendString(1, "-------------Init finished--------\r\n" );
+	
 
+	
     if(ReadAnchorNumber() == true)
     {
         SendString(1, "The Device is a Anchor, and the number is:");
