@@ -365,8 +365,7 @@ void continueRound()
 			Round_left();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
             Round_stop();
-            CurrentAngle = CurrentAngle + 6;
-
+			
 #ifdef UART_1
 
             angle[0] = (CurrentAngle >> 8) & 0xff;
@@ -375,7 +374,10 @@ void continueRound()
             SendHex2Ascills(1, angle, 2);
 
 #endif
+            CurrentAngle = CurrentAngle + 6;
+
         }
+		 CurrentAngle = CurrentAngle - 6;
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
@@ -420,7 +422,6 @@ void continueRound()
 			Round_right();
             Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
             Round_stop();
-            CurrentAngle = CurrentAngle - 6;
 			
 #ifdef UART_1
 
@@ -429,8 +430,11 @@ void continueRound()
             SendString(1, "The CurrentAngle is:");
             SendHex2Ascills(1, angle, 2);
 #endif
+            CurrentAngle = CurrentAngle - 6;
+			
+
         }
-		
+		CurrentAngle = CurrentAngle + 6;
     }
 }
 
