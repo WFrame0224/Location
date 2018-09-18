@@ -36,6 +36,9 @@ Anchor_Number Anchor_Num = Anchor_None;
 uint8_t Init_time = 0;
 
 extern uint8_t idata Msg_Index;
+
+uint8_t Commd_Head = 0;
+
 /*========================Functions================================*/
 
 void Anchor_run()
@@ -171,6 +174,61 @@ void getMsgAngle(uint8_t Msg)
 		// 缓存区清零
 		memset((commdinfo.Commd), 0x00, 9);
     }
+}
+
+void getMsgAngle1(uint8_t Msg)
+{
+    commdinfo.Commd[commdinfo.Commd_Index] = Msg;
+	Msg_Index += 1;
+    commdinfo.Commd_Index = Msg_Index;
+	
+    if(commdinfo.Commd_Index == 3)//帧头判断，帧头不对，直接下次重新接收
+    {
+        if( (commdinfo.Commd[0] == 'a') && (commdinfo.Commd[1] == 'n') && (commdinfo.Commd[2] == 'g') ) // 帧头是否是启动帧的帧头
+        {
+            Commd_Head = 1;
+        }
+        else if((commdinfo.Commd[0] == 'd') && (commdinfo.Commd[1] == 'e') && (commdinfo.Commd[2] == 's') )// 帧头是否是电机控制帧的帧头
+        {
+            Commd_Head = 2;
+        }
+        else    // 帧头不是有效命令的帧头，抛弃消息
+        {
+            Msg_Index = 0;
+            commdinfo.Commd_Index = Msg_Index;
+            // 缓存区清零
+		    memset((commdinfo.Commd), 0x00, 9);
+            return;     // 直接跳出程序
+        }
+    }
+    
+    if(commdinfo.Commd_Index == 9) // 准备进行帧尾判断
+    {
+        Msg_Index = 0;
+        commdinfo.Commd_Index = Msg_Index;
+
+        if( (Commd_Head == 1) && (commdinfo.Commd[6] == 'a') && (commdinfo.Commd[7] == 'n') && (commdinfo.Commd[8] == 'g') ) // 帧头是否是启动帧的帧头
+        {
+            commdinfo.Commd_In_Flag = true;
+            commdinfo.Commd_Type = InitCommd;
+        }
+        else if( (Commd_Head == 2) && (commdinfo.Commd[6] == 'd') && (commdinfo.Commd[7] == 'e') && (commdinfo.Commd[8] == 's') )// 帧头是否是电机控制帧的帧头
+        {
+            commdinfo.Commd_In_Flag = true;
+            commdinfo.Commd_Type = ControlCommd;
+        }
+        else    // 帧头不是有效命令的帧头，抛弃消息
+        {
+            Msg_Index = 0;
+            commdinfo.Commd_Index = Msg_Index;
+            // 缓存区清零
+		    memset((commdinfo.Commd), 0x00, 9);
+            return;     // 直接跳出程序
+        }
+		desangle.F = commdinfo.Commd[3];                                 // 得到转动方向
+        desangle.ANGLE = (commdinfo.Commd[4] << 8) | commdinfo.Commd[5]; // 得到转动的角度
+    }
+
 }
 
 int16_t getCurrentAngle()

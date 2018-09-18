@@ -40,7 +40,7 @@ void Timer0Isr() interrupt 1
 	
 	Msg_TimeIndex = Msg_TimeIndex + 1;
 	
-	if(Msg_TimeIndex >= 5)// 命令消息超时，消息计时器清零，消息指针清零
+	if(Msg_TimeIndex >= 10)// 命令消息超时，消息计时器清零，消息指针清零
 	{
 		Msg_TimeIndex = 0;
 		Msg_Index = 0;
