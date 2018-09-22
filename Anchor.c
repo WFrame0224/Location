@@ -10,6 +10,7 @@
 #include "uart.h"
 #include "2G4.h"
 #include "timer.h"
+#include "function.h"
 
 // 存放中心站由433M信道传来的启动帧和电机控制帧
 extern CommdInfo commdinfo = {{0x00}, 0, 0, false};
@@ -181,8 +182,8 @@ void getMsgAngle1(uint8_t Msg)
     commdinfo.Commd[commdinfo.Commd_Index] = Msg;
 	Msg_Index += 1;
     commdinfo.Commd_Index = Msg_Index;
-	
-    if(commdinfo.Commd_Index == 3)//帧头判断，帧头不对，直接下次重新接收
+
+    if(commdinfo.Commd_Index == 4)//帧头判断，帧头不对，直接下次重新接收
     {
         if( (commdinfo.Commd[0] == 'a') && (commdinfo.Commd[1] == 'n') && (commdinfo.Commd[2] == 'g') ) // 帧头是否是启动帧的帧头
         {
@@ -192,6 +193,11 @@ void getMsgAngle1(uint8_t Msg)
         {
             Commd_Head = 2;
         }
+        else if( (commdinfo.Commd[0] == 'R') && (commdinfo.Commd[1] == 'E') && (commdinfo.Commd[2] == 'S') && (commdinfo.Commd[3] == 'T') ) // 如果是软件复位指令
+        {
+            REST_MCU();      // 进行软件复位
+            return;
+        }
         else    // 帧头不是有效命令的帧头，抛弃消息
         {
             Msg_Index = 0;
@@ -200,8 +206,7 @@ void getMsgAngle1(uint8_t Msg)
 		    memset((commdinfo.Commd), 0x00, 9);
             return;     // 直接跳出程序
         }
-    }
-    
+    }    
     if(commdinfo.Commd_Index == 9) // 准备进行帧尾判断
     {
         Msg_Index = 0;

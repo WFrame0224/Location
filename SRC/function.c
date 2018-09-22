@@ -16,7 +16,13 @@ void ArrayReset(unsigned char *Array, unsigned char Ch, char Head, char Length)
 	}
 }
 */
-
+/**
+ * 单片机进行软件复位
+ */
+void REST_MCU()
+{
+	IAP_CONTR |= 0x60;      // 进行软件复位
+}
 /**定义了部分常用的软件延时函数
  * Delay_1ms():定义了1ms的延时
  * Delay_100ms():定义了100ms的延时
