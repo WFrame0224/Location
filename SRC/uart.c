@@ -218,7 +218,7 @@ void UART4_Isr() interrupt 18
 		// 较短时间内接收到有效命令
 		Msg_TimeIndex = 0;
 		
-        getMsgAngle1(dat);
+        getMsgAngle(dat);
 		
 #ifdef UART_1
         SBUF = dat;

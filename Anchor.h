@@ -78,7 +78,6 @@ uint8_t GetAnchorNumber();
  *      commdinfo:保存
  */ 
 void getMsgAngle(uint8_t Msg);
-void getMsgAngle1(uint8_t Msg);
 /**
  * Function: 获取当前记录的角度
  * return：
