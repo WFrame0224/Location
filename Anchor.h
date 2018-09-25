@@ -14,7 +14,8 @@ typedef enum
 {
     NoneCommd = 0,			// 属于无效的命令
 	InitCommd = 1,          // 属于启动帧命令
-    ControlCommd = 2        // 属于电机控制帧命令
+    ControlCommd = 2,       // 属于电机控制帧命令
+	REST = 3				// 属于复位命令
 }Commd_Type;
 
 // 定义锚节点角色
@@ -30,7 +31,7 @@ typedef enum
 // 定义命令接收缓存区的类型
 typedef struct
 {
-    uint8_t Commd[9];       // 命令的缓存存储区
+    uint8_t Commd[3];       // 命令的缓存存储区
     uint8_t Commd_Index;    // 缓存区地址指针
     Commd_Type Commd_Type;  // 命令类型
     bool Commd_In_Flag;
@@ -42,6 +43,17 @@ typedef struct
     uint8_t F;
     uint16_t ANGLE;    
 }DesAngle;
+
+// 数据包的状态
+typedef enum
+{
+	NONE = 0,
+	HEAD1 = 1,
+	HEAD2 = 2,
+	MSG = 3,
+	TAIL1 = 4,
+	TAIL2 = 5
+}State;
 
 
 /*==============================Functions============================*/

@@ -13,7 +13,7 @@
 #include "function.h"
 
 // 存放中心站由433M信道传来的启动帧和电机控制帧
-extern CommdInfo commdinfo = {{0x00}, 0, 0, false};
+CommdInfo commdinfo = {{0x00}, 0, 0, false};
 
 // 逆时针旋转命令
 uint8_t const round_left_commd[7] = {0xff, 0x01, 0x00, 0x04, 0x01, 0x00, 0x06};
@@ -38,7 +38,11 @@ uint8_t Init_time = 0;
 
 extern uint8_t idata Msg_Index;
 
+// 帧头类型的设计，用于串口解析函数1
 uint8_t Commd_Head = 0;
+// 协议解析状态机
+State state_machine = NONE;
+
 
 /*========================Functions================================*/
 
@@ -84,7 +88,7 @@ void Anchor_run()
 
 					// 控制电机转动至初始位置
 					InitRound();
-
+                    commdinfo.Commd_Type = NoneCommd;
 					break;
 
 				case ControlCommd: // 如果收到的命令是电机控制帧命令
@@ -99,12 +103,16 @@ void Anchor_run()
 						SendArrayHex(4, RSSI_OVER, 8);
 						return;
 					}
-
+                    commdinfo.Commd_Type = NoneCommd;
 					break;
-
+                case REST:
+                    commdinfo.Commd_Type = NoneCommd;
+                    REST_MCU();      // 进行软件复位
+                    return;
 				case NoneCommd:
 					break;
 				default:
+                    commdinfo.Commd_Type = NoneCommd;
 					break;
             }
 			// 命令类型复位，等待下一次接收
@@ -134,50 +142,6 @@ uint8_t GetAnchorNumber()
 }
 
 void getMsgAngle(uint8_t Msg)
-{
-    uint8_t Head[3] = {0x00, 0x00, 0x00};
-    uint8_t Tail[3] = {0x00, 0x00, 0x00};
-
-    uint8_t i;
-
-    commdinfo.Commd[commdinfo.Commd_Index] = Msg;
-	Msg_Index += 1;
-    commdinfo.Commd_Index = Msg_Index;
-	
-    if (commdinfo.Commd_Index == 9)
-    {
-        commdinfo.Commd_Index = 0;
-		Msg_Index = 0;
-		
-        for (i = 0; i < 3; i++)
-        {
-            Head[i] = commdinfo.Commd[i];
-            Tail[i] = commdinfo.Commd[6 + i];
-        }
-        if ((!memcmp(Head, "ang", 3)) && (!memcmp(Tail, "ang", 3))) // 收到的是启动帧
-        {
-            commdinfo.Commd_In_Flag = true;
-            commdinfo.Commd_Type = InitCommd;
-        }
-        else if ((!memcmp(Head, "des", 3)) && (!memcmp(Tail, "des", 3))) // 收到的是电机控制帧
-        {
-            commdinfo.Commd_In_Flag = true;
-            commdinfo.Commd_Type = ControlCommd;
-        }
-        else
-        {
-            commdinfo.Commd_In_Flag = false;
-            commdinfo.Commd_Type = NoneCommd;
-            return;
-        }
-        desangle.F = commdinfo.Commd[3];                                 // 得到转动方向
-        desangle.ANGLE = (commdinfo.Commd[4] << 8) | commdinfo.Commd[5]; // 得到转动的角度
-		// 缓存区清零
-		memset((commdinfo.Commd), 0x00, 9);
-    }
-}
-
-void getMsgAngle1(uint8_t Msg)
 {
     commdinfo.Commd[commdinfo.Commd_Index] = Msg;
 	Msg_Index += 1;
@@ -234,6 +198,102 @@ void getMsgAngle1(uint8_t Msg)
         desangle.ANGLE = (commdinfo.Commd[4] << 8) | commdinfo.Commd[5]; // 得到转动的角度
     }
 
+}
+
+void getMsgAngle1(uint8_t Msg)
+{
+    switch(state_machine)
+    {
+        case NONE:
+            if(Msg == 'm')
+            {
+                state_machine = HEAD1;//第一帧帧头开始
+            }
+            else
+            {
+                state_machine = NONE;// 不是帧头开始，状态机复位
+            }
+            break;
+        case HEAD1:
+            if(Msg == 'm')
+            {
+                state_machine = HEAD2;
+            }
+            else
+            {
+                state_machine = NONE; // 帧头监测有误，状态机复位
+            }  
+            break;
+        case HEAD2:
+            switch(Msg)
+            {
+                case 'I':
+                    state_machine = MSG;
+                    commdinfo.Commd_Type = InitCommd;
+                    break;
+                case 'C':
+                    state_machine = MSG;
+                    commdinfo.Commd_Type = ControlCommd;
+                    break;
+                case 'R':
+                    state_machine = MSG;
+                    commdinfo.Commd_Type = REST;
+                    break;
+                default:
+                    commdinfo.Commd_Type = NoneCommd;
+                    state_machine = NONE; // 命令类型有误，状态机复位
+                    break;
+            }
+
+            break;
+        case MSG:
+            commdinfo.Commd[commdinfo.Commd_Index] = Msg;
+	        Msg_Index += 1;
+            commdinfo.Commd_Index = Msg_Index;
+            if(commdinfo.Commd_Index == 3) // 数据接收完毕
+            {
+                Msg_Index = 0;
+                commdinfo.Commd_Index = Msg_Index;
+                state_machine = TAIL1;     // 状态机切换至尾帧检测
+                desangle.F = commdinfo.Commd[0];                                 // 得到转动方向
+                desangle.ANGLE = (commdinfo.Commd[1] << 8) | commdinfo.Commd[2]; // 得到转动的角度
+            }
+            break;
+        case TAIL1:
+            if(Msg == 'm')
+            {
+                state_machine = TAIL2;
+            }
+            else
+            {
+                state_machine = NONE;         // 帧尾出现问题，状态机复位
+                memset((commdinfo.Commd), 0x00, 3);
+                commdinfo.Commd_Type = NoneCommd;
+                desangle.F = 0;
+                desangle.ANGLE = 0x0000;
+            }
+            break;
+        case TAIL2:
+            if(Msg == 'm')                   // 完整有效的数据包接收完毕
+            {
+                state_machine = NONE;       // 状态机复位，准备下一次数据接收
+                commdinfo.Commd_In_Flag = true;
+            }
+            else
+            {
+                state_machine = NONE;         // 帧尾出现问题，状态机复位
+                commdinfo.Commd_In_Flag = false;
+                memset((commdinfo.Commd), 0x00, 3);
+                commdinfo.Commd_Type = NoneCommd;
+                desangle.F = 0;
+                desangle.ANGLE = 0x0000;
+            }
+            break;
+        default:
+            state_machine = NONE;         // 状态机出现问题，状态机复位
+            break;
+
+    }
 }
 
 int16_t getCurrentAngle()
