@@ -282,13 +282,13 @@ void InitRound()
 
 #endif
     /**
-	 * 电机旋转 8度/s	 
+	 * 电机旋转 7.8度/s	 
 	 */
     // 进行初始角度设置
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
         Round_left();
-        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.008));
+        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.0078));
         Round_stop();
 
         CurrentAngle = CurrentAngle + desangle.ANGLE;
@@ -296,7 +296,7 @@ void InitRound()
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小,最后不要采用顺时针
     {
         Round_right();
-        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.008));
+        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.0078));
         Round_stop();
         if (CurrentAngle == 0)
         {
@@ -370,7 +370,7 @@ void continueRound()
                     break;
             }
 			Round_left();
-            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Hal_DelayXms((uint16_t)(6 / 0.0078)); // 以6度的分辨率进行
             Round_stop();
 			
 #ifdef UART_1
@@ -427,7 +427,7 @@ void continueRound()
                     break;
             }
 			Round_right();
-            Hal_DelayXms((uint16_t)(6 / 0.008)); // 以6度的分辨率进行
+            Hal_DelayXms((uint16_t)(6 / 0.0078)); // 以6度的分辨率进行
             Round_stop();
 			
 #ifdef UART_1
