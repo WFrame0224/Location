@@ -220,6 +220,10 @@ void getMsgAngle(uint8_t Msg)
             {
                 state_machine = NONE;       // 状态机复位，准备下一次数据接收
                 commdinfo.Commd_In_Flag = true;
+				if(commdinfo.Commd_Type == REST)
+				{
+					REST_MCU();      		// 进行软件复位,保证复位具有最高的优先级
+				}
             }
             else
             {
