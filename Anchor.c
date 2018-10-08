@@ -11,16 +11,10 @@
 #include "2G4.h"
 #include "timer.h"
 #include "function.h"
+#include "motor.h"
 
 // 存放中心站由433M信道传来的启动帧和电机控制帧
 CommdInfo commdinfo = {{0x00}, 0, 0, false};
-
-// 逆时针旋转命令
-uint8_t const round_left_commd[7] = {0xff, 0x01, 0x00, 0x04, 0x01, 0x00, 0x06};
-// 顺时针旋转命令
-uint8_t const round_right_commd[7] = {0xff, 0x01, 0x00, 0x02, 0x01, 0x00, 0x04};
-// 停止旋转命令
-uint8_t const round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
 
 // RSSI读取命令结束
 const uint8_t RSSI_OVER[8] = {'R', 'S', 'S', 'I', 'O', 'V', 'E', 'R'};
@@ -28,7 +22,7 @@ const uint8_t RSSI_OVER[8] = {'R', 'S', 'S', 'I', 'O', 'V', 'E', 'R'};
 // 存放需求角度以及角度旋转的方向
 DesAngle desangle = {'+', 0x0000};
 
-extern uint16_t idata CurrentAngle;
+extern uint16_t CurrentAngle;
 
 // 存放锚节点的标号
 Anchor_Number Anchor_Num = Anchor_None;
@@ -291,18 +285,17 @@ void InitRound()
     // 进行初始角度设置
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
-        Round_left();
-        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.0078));
-        Round_stop();
-
+		// 电机逆时针转动到目标角度
+		RoundLeft2Angle(desangle.ANGLE);
+		
         CurrentAngle = CurrentAngle + desangle.ANGLE;
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小,最后不要采用顺时针
     {
-        Round_right();
-        Hal_DelayXms((uint16_t)(desangle.ANGLE / 0.0078));
-        Round_stop();
-        if (CurrentAngle == 0)
+		// 电机顺时针转到目标角度
+		RoundRight2Angle(desangle.ANGLE);
+     
+		if (CurrentAngle == 0)
         {
             CurrentAngle = 360;
         }
@@ -373,9 +366,8 @@ void continueRound()
                 default:
                     break;
             }
-			Round_left();
-            Hal_DelayXms((uint16_t)(6 / 0.0078)); // 以6度的分辨率进行
-            Round_stop();
+			// 以6度的分辨率进行旋转
+			RoundLeft2Angle(6);
 			
 #ifdef UART_1
 
@@ -430,9 +422,8 @@ void continueRound()
                 default:
                     break;
             }
-			Round_right();
-            Hal_DelayXms((uint16_t)(6 / 0.0078)); // 以6度的分辨率进行
-            Round_stop();
+			// 以6度的分辨率旋转
+			RoundRight2Angle(6);
 			
 #ifdef UART_1
 
@@ -449,20 +440,3 @@ void continueRound()
     }
 }
 
-void Round_left()
-{
-    // 发送命令
-    SendArrayHex(3, round_left_commd, 7);
-}
-
-void Round_right()
-{
-    // 发送命令
-    SendArrayHex(3, round_right_commd, 7);
-}
-
-void Round_stop()
-{
-    // 发送命令
-    SendArrayHex(3, round_stop_commd, 7);
-}

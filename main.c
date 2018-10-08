@@ -22,10 +22,10 @@
 /* defines---------------------------------------------*/
 
 // 定义一个版本号
-const uint8_t SystemVersion[] = "V2_1535";
+const uint8_t SystemVersion[] = "V2_1514";
 
 /* Variables-------------------------------------------*/
-extern uint16_t idata CurrentAngle = 0x0000;
+extern uint16_t CurrentAngle = 0x0000;
 
 /* Main function---------------------------------------*/
 void main()

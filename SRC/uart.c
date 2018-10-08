@@ -137,7 +137,8 @@ void Init_UART2()
 
 void Init_UART3()
 {
-    S3CON = 0x50;
+    //S3CON = 0x50;//此模式，允许串口3接收数据 
+	S3CON = 0x40;  //此模式，不允许串口3接收数据
     T3L = (65536 - (FOSC / 4 / BAUD3));
     T3H = (65536 - (FOSC / 4 / BAUD3)) >> 8;
     T4T3M |= 0x0a;
@@ -195,10 +196,12 @@ void Uart3Isr() interrupt 17
         S3CON &= ~0x02;
         busy3 = 0;
     }
+	/** 本程序串口三连接电机控制信号，无需接收
     if (S3CON & 0x01)
     {
         S3CON &= ~0x01;
     }
+	*/
 }
 
 void UART4_Isr() interrupt 18

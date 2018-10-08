@@ -105,21 +105,6 @@ void continueRound();
 void Send_GetRssiCommd(int16_t ActualAngle);
 
 /**
- * Function：控制电机开始左转，顺时针转动，度数增加
- */ 
-void Round_left();
-
-/**
- * Function: 控制电机开始右转，逆时针转动，度数减小
- */ 
-void Round_right();
-
-/**
- * Function: 使电机停止旋转 
- */ 
-void Round_stop();
-
-/**
  * Function：锚节点运行主程序，实现锚节点的所有流程：
  *      获取433中心站消息 --> 解析识别 --> 控制电机旋转 -->  发送RSSI读取命令给待测节点 --> 发送中心站over标志
  */ 
