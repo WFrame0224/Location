@@ -103,8 +103,12 @@ void SendHex2Ascills(unsigned char Uart_Port, unsigned char *p, uint n)
 void Init_Uart()
 {
     Init_UART1();
-    Init_UART2();
+//    Init_UART2();
+	
+#ifdef AC_MOTOR	
     Init_UART3();
+#endif
+	
     Init_UART4();
 
     EA = 1;

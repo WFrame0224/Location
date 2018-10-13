@@ -80,7 +80,7 @@ void PCA_init(void)
     CL = 0x00;				// 清楚计数器的值
     CH = 0x00;
     CCAPM0 = 0x49;          //PCA模块0为16位定时器模式
-	EA = 1;
+//	EA = 1;
 }
 
 void PCA_Create_Plus(void)

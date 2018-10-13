@@ -18,6 +18,7 @@
 #include "sx1280.h"
 #include "2G4.h"
 #include "Anchor.h"
+#include "motor.h"
 
 /* defines---------------------------------------------*/
 
@@ -65,11 +66,16 @@ void DeviceInit()
 	SendString(1,SystemVersion);
 	SendString(1,"._._\r\n\r\n");
 	
-    SendString(1, "--------------Initing----------\r\n" );
+	SendString(1, "--------------Initing----------\r\n" );
+	
     SendString(1, "Uart initialization completed...........\r\n" );
     // 定时器初始化
     InitTimer0();
     SendString(1, "Timer initialization completed...........\r\n" );
+	// PCA初始化
+	PCA_init();
+	SendString(1, "PCA initialization completed...........\r\n" );
+	
     // 2.4G射频初始化
     Init_2G4();
     SendString(1, "2.4G initialization completed...........\r\n" );

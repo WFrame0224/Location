@@ -23,6 +23,7 @@ void REST_MCU()
 {
 	IAP_CONTR |= 0x60;      // 进行软件复位
 }
+#ifdef SOFT_DELAY	
 /**定义了部分常用的软件延时函数
  * Delay_1ms():定义了1ms的延时
  * Delay_100ms():定义了100ms的延时
@@ -101,3 +102,4 @@ void Delay_Xus(unsigned int Xus)
 		Delay_10us();
 	}
 }
+#endif
