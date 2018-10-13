@@ -25,7 +25,7 @@ sbit M1 = P0^4;
 
 // 电机类型宏定义
 // 定义了交流电机的云台控制
-#define AC_MOTOR
-//#define DC_MOTOR
+//#define AC_MOTOR
+#define DC_MOTOR
 
 #endif
