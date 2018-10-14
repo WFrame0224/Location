@@ -105,7 +105,7 @@ void Moto_RoundXangel(uint16_t desAngle)
 	
 	while(1)
 	{
-		if(PLUS_CNT == (angleTime * 200))
+		if(PLUS_CNT == (angleTime * 400))
 		{
 			PCA_Stop_Plus();
 			break;

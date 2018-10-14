@@ -14,11 +14,11 @@
 
 /* Pin defines------------------------------- */
 // 采用原串口3的引脚
-sbit Plus_pin = P1^ 7;
-sbit Dir_pin = P1 ^ 6;
+sbit Plus_pin = P0 ^ 0;			// 原标TXD3引脚
+sbit Dir_pin = P0 ^ 1;			// 原标RXD3引脚
 
 /* Relative defines-------------------------------------- */
-#define PLUS_FREQ 600					// 脉冲的频率
+#define PLUS_FREQ 1200					// 脉冲的频率
 #define PLUS_VALUE (FOSC/12/PLUS_FREQ)	// PCA定时器比较器的值
 
 /**
