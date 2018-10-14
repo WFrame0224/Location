@@ -20,7 +20,7 @@ uint8_t const round_stop_commd[7] = {0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
 #else
 
 // 作为脉冲计数的标志
-uint32_t PLUS_CNT = 0;
+uint32_t PLUS_CNT = 1;
 
 #endif
 
@@ -31,7 +31,7 @@ void RoundLeft2Angle(uint16_t desAngle)
     Hal_DelayXms((uint16_t)(desAngle / 0.0078));
     Round_stop();
 #else
-	Dir_pin = 0;	// 方向为正转
+	Dir_pin = 1;	// 方向为正转
 	Moto_RoundXangel(desAngle);	
 #endif
 }
@@ -43,9 +43,9 @@ void RoundRight2Angle(uint16_t desAngle)
     Hal_DelayXms((uint16_t)(desAngle / 0.0078));
     Round_stop();
 #else
-	Dir_pin = 1;	// 方向为反转
+	Dir_pin = 0;	// 方向为反转
 	Moto_RoundXangel(desAngle);
-	Dir_pin = 0;	// 方向为回归至初始
+	Dir_pin = 1;	// 方向为回归至初始
 #endif
 }
 #ifdef AC_MOTOR	
@@ -107,6 +107,7 @@ void Moto_RoundXangel(uint16_t desAngle)
 	{
 		if(PLUS_CNT == (angleTime * 400))
 		{
+			PLUS_CNT = 1;
 			PCA_Stop_Plus();
 			break;
 		}
