@@ -328,46 +328,26 @@ void continueRound()
     if (desangle.F == '+') // 逆时针旋转，向左转,度数增加
     {
         desangle.ANGLE += (CurrentAngle);
-        while (CurrentAngle <= desangle.ANGLE)
+		
+		Hal_DelayXms((GetAnchorNumber() - 1) * 700);
+		Send_GetRssiCommd(CurrentAngle);
+		Hal_DelayXms((4 - GetAnchorNumber()) * 700);
+		
+        while (CurrentAngle < desangle.ANGLE)
         {       
+		
+			// 以6度的分辨率进行旋转
+			RoundLeft2Angle(6);
+			CurrentAngle = CurrentAngle + 6;
+			
 			// 延时不同的时间进行RSSI读取控制命令帧的发送
-            switch (GetAnchorNumber())
-            {
-                case Anchor_1:
-                    break;
-                case Anchor_2:
-                    Hal_DelayXms((Anchor_2 - 1) * 700);
-                    break;
-                case Anchor_3:
-                    Hal_DelayXms((Anchor_3 - 1) * 700);
-                    break;
-                case Anchor_4:
-                    Hal_DelayXms((Anchor_4 -1 ) * 700);
-                    break;
-                default:
-                    break;
-            }
+            Hal_DelayXms((GetAnchorNumber() - 1) * 700);
 
             Send_GetRssiCommd(CurrentAngle);
 
-            switch (GetAnchorNumber())
-            {
-                case Anchor_1:
-                    Hal_DelayXms((4 - Anchor_1) * 700);
-                    break;
-                case Anchor_2:
-                    Hal_DelayXms((4 - Anchor_2) * 700);
-                    break;
-                case Anchor_3:
-                    Hal_DelayXms((4 - Anchor_3) * 700);
-                    break;
-                case Anchor_4:
-                    break;
-                default:
-                    break;
-            }
-			// 以6度的分辨率进行旋转
-			RoundLeft2Angle(6);
+			// 将时间差补回来
+            Hal_DelayXms((4 - GetAnchorNumber()) * 700);
+			
 			
 #ifdef UART_1
 
@@ -377,53 +357,31 @@ void continueRound()
             SendHex2Ascills(1, angle, 2);
 
 #endif
-            CurrentAngle = CurrentAngle + 6;
 
         }
-		 CurrentAngle = CurrentAngle - 6;
     }
     else if (desangle.F == '-') // 顺时针旋转，向右转，度数减小
     {
         desangle.ANGLE = (CurrentAngle)-desangle.ANGLE;
-        while (CurrentAngle >= desangle.ANGLE)
+		
+		Hal_DelayXms((GetAnchorNumber() - 1) * 700);
+		Send_GetRssiCommd(CurrentAngle);
+		Hal_DelayXms((4 - GetAnchorNumber()) * 700);
+		
+        while (CurrentAngle > desangle.ANGLE)
         {
-            switch (GetAnchorNumber())
-            {
-                case Anchor_1:
-                    break;
-                case Anchor_2:
-                    Hal_DelayXms((Anchor_2 - 1) * 700);
-                    break;
-                case Anchor_3:
-                    Hal_DelayXms((Anchor_3 - 1) * 700);
-                    break;
-                case Anchor_4:
-                    Hal_DelayXms((Anchor_4 - 1) * 700);
-                    break;
-                default:
-                    break;
-            }
+            // 以6度的分辨率旋转
+			RoundRight2Angle(6);
+			CurrentAngle = CurrentAngle - 6;
+			
+			// 延时不同的时间进行RSSI读取控制命令帧的发送
+            Hal_DelayXms((GetAnchorNumber() - 1) * 700);
 
             Send_GetRssiCommd(CurrentAngle);
 
-            switch (GetAnchorNumber())
-            {
-                case Anchor_1:
-                    Hal_DelayXms((4 - Anchor_1) * 700);
-                    break;
-                case Anchor_2:
-                    Hal_DelayXms((4 - Anchor_2) * 700);
-                    break;
-                case Anchor_3:
-                    Hal_DelayXms((4 - Anchor_3) * 700);
-                    break;
-                case Anchor_4:
-                    break;
-                default:
-                    break;
-            }
-			// 以6度的分辨率旋转
-			RoundRight2Angle(6);
+            // 将时间差补回来
+            Hal_DelayXms((4 - GetAnchorNumber()) * 700);
+			
 			
 #ifdef UART_1
 
@@ -432,11 +390,7 @@ void continueRound()
             SendString(1, "The CurrentAngle is:");
             SendHex2Ascills(1, angle, 2);
 #endif
-            CurrentAngle = CurrentAngle - 6;
-			
-
         }
-		CurrentAngle = CurrentAngle + 6;
     }
 }
 

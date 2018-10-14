@@ -72,9 +72,6 @@ void Tx_Msg_2G4(uint8_t* msg, uint8_t msg_size);
  */
 int8_t Rx_Msg_2G4(uint8_t* Buffer, uint8_t* BufferSize, uint8_t maxmsize );
 
-
-
-
 /*!
  * \brief Function to be executed on Radio Tx Done event
  */

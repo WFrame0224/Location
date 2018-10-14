@@ -17,7 +17,7 @@ void InitTimer0()
     TF0 = 0;                              //清楚TF0标志
     TR0 = 1;                              //定时器0开始计时
     ET0 = 1;
-    EA = 1;
+//    EA = 1;
 }
 
 void Hal_DelayXms(uint16_t Xms)

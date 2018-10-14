@@ -71,16 +71,16 @@ void Round_stop()
 /*--------------------PCA底层控制的驱动函数--------------------------*/
 void PCA_init(void)
 {
-	PLUS_CNT = 0;			// 脉冲计数器初始化
-	Dir_pin = 0;			// 方向引脚初始化，默认正转
-	Plus_pin = 0;			// Plus引脚初始化
+	PLUS_CNT = 1;			// 脉冲计数器初始化
+//	Dir_pin = 1;			// 方向引脚初始化，默认正转
+//	Plus_pin = 1;			// Plus引脚初始化
 	
 	CCON = 0x00;
     CMOD = 0x00;            //PCA时钟为1/12系统时钟，静止PCA定时器溢出中断
-    CL = 0x00;				// 清楚计数器的值
+    CL = 0x00;				// 清除计数器的值
     CH = 0x00;
     CCAPM0 = 0x49;          //PCA模块0为16位定时器模式
-//	EA = 1;
+	CR = 0;					// 初始化先PCA定时器，需要时再打开
 }
 
 void PCA_Create_Plus(void)
@@ -99,7 +99,6 @@ void PCA_Stop_Plus(void)
 void Moto_RoundXangel(uint16_t desAngle)
 {
 	uint8_t angleTime = (desAngle / 3);
-	PLUS_CNT = 0;
 	
 	PCA_Create_Plus();
 	
