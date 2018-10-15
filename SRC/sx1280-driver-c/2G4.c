@@ -11,7 +11,7 @@
 #include "2G4.h"
 #include "radio.h"
 #include "sx1280.h"
-#include "function.h"
+#include "timer.h"
 #include "hal.h"
 #include "uart.h"
 
@@ -75,7 +75,7 @@ void Init_2G4()
     
 
     // let DC/DC power ramp up,此处最好采用定时器硬件定时
-    Delay_Xms(500);
+    Hal_DelayXms(500);
 
     // 射频初始化
     SX1280Init(&Callbacks);
