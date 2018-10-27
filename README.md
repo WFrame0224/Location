@@ -1,42 +1,18 @@
 # Location
+* 为多天线同步控制，实现利用2.4G射频芯片读取其RSSI的值，实现无线节点的定位，此处展示的是**锚节点**（Anchor）的部分
+****
 
-#### 项目介绍
-总体描述：
-        项目实现Semtech公司的sx1280的2.4GLora射频芯片，进行通信，读取数据包对应的RSSI的值，利用433MHzLora芯片实现控制帧和数据帧的传输。
-硬件平台：
-        STC8A8K64sA12(新型51单片机)
-软件平台：
-        keilV4
+## 项目介绍
+### 总体描述：
+* 项目实现 **Semtech**公司的**sx1280**的*2.4G Lora*射频芯片，进行通信，读取数据包对应的**RSSI**的值，利用433MHz *Lora*芯片实现控制帧和数据帧的传输。
+### 硬件平台：
+* **STC8A8K64sA12**(新型51单片机)
+### 软件平台：
+* **keilV4**
+* 采用C语言完成实现
 
-#### 软件架构
-软件架构说明
+### 附加说明：
 
-
-#### 安装教程
-
-1. xxxx
-2. xxxx
-3. xxxx
-
-#### 使用说明
-
-1. xxxx
-2. xxxx
-3. xxxx
-
-#### 参与贡献
-
-1. Fork 本项目
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+1. 本项目中**sx1280-driver文件**为*sx1280*的51驱动文件，您可以使用其进行您的单片机方面的开发
+2. **Semtech**公司的说明与介绍文档地址：[www.semtech.com/products/wireless-rf/24-ghz-transceivers/SX1280](https://www.semtech.com/products/wireless-rf/24-ghz-transceivers/SX1280)
+3. **Semtech**公司提供的*STM32*的实例程序地址：[https://os.mbed.com/teams/Semtech/code/SX1280DevKit/](https://os.mbed.com/teams/Semtech/code/SX1280DevKit/)
