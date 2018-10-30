@@ -59,19 +59,19 @@ void Anchor_run()
 						switch (GetAnchorNumber())
 						{
 							case Anchor_1: // 锚节点1
-								CurrentAngle = CurrentAngle + 180;
-								break;
-
-							case Anchor_2: // 锚节点2
 								CurrentAngle = CurrentAngle + 270;
 								break;
 
+							case Anchor_2: // 锚节点2
+								CurrentAngle = CurrentAngle + 360;
+								break;
+
 							case Anchor_3: // 锚节点3
-								CurrentAngle = CurrentAngle + 0;
+								CurrentAngle = CurrentAngle + 90;
 								break;
 
 							case Anchor_4: // 锚节点4
-								CurrentAngle = CurrentAngle + 90;
+								CurrentAngle = CurrentAngle + 180;
 								break;
 
 							default: // 如果不是锚节点
@@ -243,7 +243,7 @@ int16_t getCurrentAngle()
 
 void Send_GetRssiCommd(int16_t ActualAngle)
 {
-    uint8_t i = 0;
+	uint8_t i = 0;
     // 读取控制帧                  帧头 标号  符号    角度   次数  帧尾
     uint8_t getrssicommd[9] = {'a', 'b', 0, 0x00, 0x00, 0x00, 0, 'a', 'b'};
     // 存入当前标号
